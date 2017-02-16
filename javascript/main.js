@@ -18,6 +18,9 @@ const main = function () {
 		return false
 	}
 
+	GL.enable(GL.DEPTH_TEST)
+	GL.depthFunc(GL.LESS);
+
 	const cube_file = loadTextFile("./models/cube.obj")
 	const cube = new OBJ.Mesh(cube_file)
 
@@ -58,12 +61,12 @@ const main = function () {
 	const vertex_buffer = GL.createBuffer()
 	GL.bindBuffer(GL.ARRAY_BUFFER, vertex_buffer)
 	GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(cube.vertices), GL.STATIC_DRAW)
+	const normal_buffer = GL.createBuffer()
+	GL.bindBuffer(GL.ARRAY_BUFFER, normal_buffer)
+	GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(cube.vertexNormals), GL.STATIC_DRAW)
 	const index_buffer = GL.createBuffer()
 	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, index_buffer)
 	GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube.indices), GL.STATIC_DRAW)
-	// const normal_buffer = GL.createBuffer()
-	// GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, normal_buffer)
-	// GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube.), GL.STATIC_DRAW)
 
 	// Link the vertex and fragment shader
 	const shader_vertex = get_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX")
@@ -78,7 +81,7 @@ const main = function () {
 	//MVP Matrix
 	let mv_matrix = new mat4.create()
 	let camera_position = vec3.create()
-	camera_position.set([-0.0, -0.0, -1.0])
+	camera_position.set([-1.0, -0.0, -2.0])
 	mat4.translate(mv_matrix, mv_matrix, camera_position)
 
 	let p_matrix = mat4.create()
@@ -87,6 +90,7 @@ const main = function () {
 	let screen_size_in
 	let global_time
 	let coord
+	let normal
 	let mv_matrix_in
 	let p_matrix_in
 
@@ -119,13 +123,12 @@ const main = function () {
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
 			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screen_size_in")
 			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_time_in")
-			coord = GL.getAttribLocation(MANDELBOX_PROGRAM, "coordinates")
 			mv_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "mv_matrix")
 			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "p_matrix")
+			coord = GL.getAttribLocation(MANDELBOX_PROGRAM, "coordinate")
+			normal = GL.getAttribLocation(MANDELBOX_PROGRAM, "normal")
 
 			mat4.rotateY(mv_matrix, mv_matrix, 0.01)
-
-			GL.enableVertexAttribArray(coord)
 
 			GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
 			GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
@@ -135,6 +138,10 @@ const main = function () {
 			GL.uniformMatrix4fv(mv_matrix_in, false, mv_matrix)
 			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
 
+			GL.enableVertexAttribArray(normal)
+			GL.bindBuffer(GL.ARRAY_BUFFER, normal_buffer);
+			GL.vertexAttribPointer(normal, 3, GL.FLOAT, false, 0, 0);
+			GL.enableVertexAttribArray(coord)
 			GL.bindBuffer(GL.ARRAY_BUFFER, vertex_buffer)
 			GL.vertexAttribPointer(coord, 3, GL.FLOAT, false, 0, 0)
 			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, index_buffer)
