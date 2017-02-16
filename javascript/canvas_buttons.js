@@ -5,10 +5,10 @@ min_height = 240;
 med_width  = 640;
 med_height = 480;
 
-function play(){
-	canvas_play = !canvas_play
-}
-document.getElementById("btn_play").onclick = play
+// function play(){
+// 	canvas_play = !canvas_play
+// }
+// document.getElementById("btn_play").onclick = play
 
 function refresh_image(){
 	first_loop = 0
