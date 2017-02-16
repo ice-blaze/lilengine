@@ -1,0 +1,24 @@
+{
+  "name": "lilengine",
+  "version": "0.0.1",
+  "description": "Unity like engine in the browser",
+  "main": " ",
+  "dependencies": {
+    "gl-matrix": "^2.3.2",
+    "jquery": "^3.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ice-blaze/lilengine.git"
+  },
+  "author": "Ice-Blaze",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ice-blaze/lilengine/issues"
+  },
+  "homepage": "https://github.com/ice-blaze/lilengine#readme"
+}
