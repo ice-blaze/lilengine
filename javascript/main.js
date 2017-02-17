@@ -21,8 +21,8 @@ const main = function () {
 	GL.enable(GL.DEPTH_TEST)
 	GL.depthFunc(GL.LESS);
 
-	const cube_file = loadTextFile("./models/cube.obj")
-	const cube = new OBJ.Mesh(cube_file)
+	const cube1 = GameObject.create(GL, "./models/cube.obj")
+	const cube2 = GameObject.create(GL, "./models/cube.obj")
 
 	const get_shader = function (source, type, typeString) {
 		const shader = GL.createShader(type)
@@ -58,15 +58,8 @@ const main = function () {
 		}
 	}
 
-	const vertex_buffer = GL.createBuffer()
-	GL.bindBuffer(GL.ARRAY_BUFFER, vertex_buffer)
-	GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(cube.vertices), GL.STATIC_DRAW)
-	const normal_buffer = GL.createBuffer()
-	GL.bindBuffer(GL.ARRAY_BUFFER, normal_buffer)
-	GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(cube.vertexNormals), GL.STATIC_DRAW)
-	const index_buffer = GL.createBuffer()
-	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, index_buffer)
-	GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube.indices), GL.STATIC_DRAW)
+	cube1.init_buffers()
+	cube2.init_buffers()
 
 	// Link the vertex and fragment shader
 	const shader_vertex = get_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX")
@@ -79,19 +72,13 @@ const main = function () {
 	let bufftex = create_framebuffer(CANVAS.width, CANVAS.height)
 
 	//MVP Matrix
-	let mv_matrix = new mat4.create()
-	let camera_position = vec3.create()
-	camera_position.set([-1.0, -0.0, -2.0])
-	mat4.translate(mv_matrix, mv_matrix, camera_position)
-
+	cube1.transpose.set([-0.0, 1.0, -4.0])
+	cube2.transpose.set([-1.0, 1.0, -4.0])
 	let p_matrix = mat4.create()
 	mat4.perspective(p_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
 
 	let screen_size_in
 	let global_time
-	let coord
-	let normal
-	let mv_matrix_in
 	let p_matrix_in
 
 	let time_old = 0
@@ -99,7 +86,6 @@ const main = function () {
 	let last_mean = 0
 
 	let temp_var
-
 
 	animate = function (time) {
 		window.requestAnimationFrame(animate)
@@ -122,31 +108,24 @@ const main = function () {
 		const draw_mandlebox = function () {
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
 			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screen_size_in")
+			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
 			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_time_in")
-			mv_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "mv_matrix")
+			GL.uniform1f(global_time, time / 1000)
 			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "p_matrix")
-			coord = GL.getAttribLocation(MANDELBOX_PROGRAM, "coordinate")
-			normal = GL.getAttribLocation(MANDELBOX_PROGRAM, "normal")
+			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
 
-			mat4.rotateY(mv_matrix, mv_matrix, 0.01)
+			cube1.set_shader_program(MANDELBOX_PROGRAM)
+			cube2.set_shader_program(MANDELBOX_PROGRAM)
+			cube1.rotate[0] = 4 * Math.sin(time/1000)
+			cube1.scale[0] = 4 * Math.sin(time/1000)
+			cube2.scale[1] = 4 * Math.sin(time/1000)
 
 			GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
 			GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
-			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
-			GL.uniform1f(global_time, time / 1000)
-			GL.uniformMatrix4fv(mv_matrix_in, false, mv_matrix)
-			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
+			cube1.draw()
+			cube2.draw()
 
-			GL.enableVertexAttribArray(normal)
-			GL.bindBuffer(GL.ARRAY_BUFFER, normal_buffer);
-			GL.vertexAttribPointer(normal, 3, GL.FLOAT, false, 0, 0);
-			GL.enableVertexAttribArray(coord)
-			GL.bindBuffer(GL.ARRAY_BUFFER, vertex_buffer)
-			GL.vertexAttribPointer(coord, 3, GL.FLOAT, false, 0, 0)
-			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, index_buffer)
-
-			GL.drawElements(GL.TRIANGLES, cube.indices.length, GL.UNSIGNED_SHORT, 0)
 			GL.flush()
 		}
 
