@@ -20,8 +20,6 @@ function assert(boolean) {
 	gameobject3.set_child(gameobject4)
 	gameobject3.set_child(gameobject5)
 
-	console.log(gameobject1)
-
 	if(gameobject1.parent != null){
 		console.error('Nope')
 	}
@@ -48,6 +46,4 @@ function assert(boolean) {
 	if(gameobject2.parent != gameobject3){
 		console.error('Nope')
 	}
-
-
 }
