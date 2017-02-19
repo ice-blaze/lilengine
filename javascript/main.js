@@ -21,9 +21,19 @@ const main = function () {
 	GL.enable(GL.DEPTH_TEST)
 	GL.depthFunc(GL.LESS);
 
-	const cube1 = GameObject.create(GL, "./models/cube.obj")
-	const cube2 = GameObject.create(GL, "./models/cube.obj")
-	cube1.set_child(cube2)
+	const cubes = []
+	const elements = []
+	for (var i = 0; i < 5; i++) {
+		const cube1 = GameObject.create(GL, "./models/cube.obj", "obja" + i)
+		const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
+		cube1.set_child(cube2)
+		cubes.push(cube1)
+		cubes.push(cube2)
+		elements.push(cube1)
+
+		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random()-0.5)])
+		cube2.position.set([-2.0, 0.0, -0.0])
+	}
 
 	const get_shader = function (source, type, typeString) {
 		const shader = GL.createShader(type)
@@ -59,8 +69,9 @@ const main = function () {
 		}
 	}
 
-	cube1.init_buffers()
-	cube2.init_buffers()
+	for (let cube of cubes) {
+		cube.init_buffers()
+	}
 
 	// Link the vertex and fragment shader
 	const shader_vertex = get_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX")
@@ -73,14 +84,17 @@ const main = function () {
 	let bufftex = create_framebuffer(CANVAS.width, CANVAS.height)
 
 	//MVP Matrix
-	cube1.transpose.set([-1.0, 1.0, -4.0])
-	cube2.transpose.set([-2.0, 0.0, -0.0])
 	let p_matrix = mat4.create()
 	mat4.perspective(p_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
+
+	//global lightning
+	let global_light = vec3.fromValues(1, -1, 1)
+	vec3.normalize(global_light, global_light)
 
 	let screen_size_in
 	let global_time
 	let p_matrix_in
+	let global_light_in
 
 	let time_old = 0
 	let counter_list = []
@@ -110,22 +124,32 @@ const main = function () {
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
 			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screen_size_in")
 			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
+			global_light_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_light_in")
+			GL.uniform3fv(global_light_in, global_light)
 			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_time_in")
 			GL.uniform1f(global_time, time / 1000)
 			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "p_matrix")
 			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
 
-			cube1.set_shader_program(MANDELBOX_PROGRAM)
-			cube2.set_shader_program(MANDELBOX_PROGRAM)
-			cube1.rotate[0] = 4 * Math.sin(time/1000)
-			// cube1.scale[0] = 4 * Math.sin(time/1000)
-			cube2.scale[1] = 4 * Math.sin(time/1000)
+			for (let cube of cubes) {
+				cube.set_shader_program(MANDELBOX_PROGRAM)
+			}
+
+			for (let element of elements) {
+				// position could shift because of floating precision errors
+				element.position[0] += Math.sin(time / 1000) / 100
+				element.rotate[0] = 4 * Math.sin(time / 1000)
+				element.rotate[1] = 4 * Math.sin(time / 1000)
+				// cube1.scale[0] = 4 * Math.sin(time/1000)
+				element.children[0].scale[1] = 4 * Math.sin(time / 1000)
+			}
 
 			GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
 			GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
 
-			cube1.draw()
-			cube2.draw()
+			for (let cube of cubes) {
+				cube.draw()
+			}
 
 			GL.flush()
 		}

@@ -8,7 +8,7 @@ class GameObject {
 		this.normals = []
 		this.indices = []
 		this.texture = null // the image texture
-		this.transpose = vec3.fromValues(0.0, 0.0, 0.0)
+		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
 		this.GL = null
@@ -49,7 +49,7 @@ class GameObject {
 		if (this.parent) {
 			model = this.parent.model_matrix()
 		}
-		mat4.translate(model, model, this.transpose)
+		mat4.translate(model, model, this.position)
 		mat4.rotateX(model, model, this.rotate[0])
 		mat4.rotateY(model, model, this.rotate[1])
 		mat4.rotateZ(model, model, this.rotate[2])
