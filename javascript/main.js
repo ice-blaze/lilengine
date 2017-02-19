@@ -23,6 +23,7 @@ const main = function () {
 
 	const cube1 = GameObject.create(GL, "./models/cube.obj")
 	const cube2 = GameObject.create(GL, "./models/cube.obj")
+	cube1.set_child(cube2)
 
 	const get_shader = function (source, type, typeString) {
 		const shader = GL.createShader(type)
@@ -72,8 +73,8 @@ const main = function () {
 	let bufftex = create_framebuffer(CANVAS.width, CANVAS.height)
 
 	//MVP Matrix
-	cube1.transpose.set([-0.0, 1.0, -4.0])
-	cube2.transpose.set([-1.0, 1.0, -4.0])
+	cube1.transpose.set([-1.0, 1.0, -4.0])
+	cube2.transpose.set([-2.0, 0.0, -0.0])
 	let p_matrix = mat4.create()
 	mat4.perspective(p_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
 
@@ -117,7 +118,7 @@ const main = function () {
 			cube1.set_shader_program(MANDELBOX_PROGRAM)
 			cube2.set_shader_program(MANDELBOX_PROGRAM)
 			cube1.rotate[0] = 4 * Math.sin(time/1000)
-			cube1.scale[0] = 4 * Math.sin(time/1000)
+			// cube1.scale[0] = 4 * Math.sin(time/1000)
 			cube2.scale[1] = 4 * Math.sin(time/1000)
 
 			GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
