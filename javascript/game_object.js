@@ -104,7 +104,6 @@ class GameObject {
 			return
 		}
 		if (this.children.indexOf(child) > -1) {
-			console.log(this.children.indexOf(child))
 			console.warn("Child is already children")
 			return
 		}
