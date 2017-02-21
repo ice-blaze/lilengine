@@ -1,5 +1,5 @@
 class GameObject {
-	constructor(name="GameObject") {
+	constructor(name = "GameObject") {
 		this.name = name
 		this.children = []
 		this.parent = null
@@ -14,7 +14,7 @@ class GameObject {
 		this.GL = null
 	}
 
-	static create(GL, path, name="name") {
+	static create(GL, path, name = "name") {
 		const object = new GameObject()
 		const file = loadTextFile("./models/cube.obj")
 		const obj_mesh = new OBJ.Mesh(file)

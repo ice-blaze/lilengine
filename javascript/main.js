@@ -31,12 +31,12 @@ const main = function () {
 		cubes.push(cube2)
 		elements.push(cube1)
 
-		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random()-0.5)])
+		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)])
 		cube2.position.set([-2.0, 0.0, -0.0])
 	}
 
 	const skybox = SkyBox.create(GL, "skybox")
-	skybox.scale.set([100000,100000,100000])
+	skybox.scale.set([100000, 100000, 100000])
 
 	const get_shader = function (source, type, typeString) {
 		const shader = GL.createShader(type)
@@ -175,7 +175,7 @@ const main = function () {
 
 		draw_mandlebox()
 
-		const draw_skybox = function() {
+		const draw_skybox = function () {
 			GL.useProgram(SKYBOX_PROGRAM)
 			skybox.set_shader_program(SKYBOX_PROGRAM)
 
