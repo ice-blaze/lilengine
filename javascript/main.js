@@ -35,6 +35,9 @@ const main = function () {
 		cube2.position.set([-2.0, 0.0, -0.0])
 	}
 
+	const skybox = SkyBox.create(GL, "skybox")
+	skybox.scale.set([100000,100000,100000])
+
 	const get_shader = function (source, type, typeString) {
 		const shader = GL.createShader(type)
 		GL.shaderSource(shader, source)
@@ -72,7 +75,9 @@ const main = function () {
 	for (let cube of cubes) {
 		cube.init_buffers()
 	}
+	skybox.init_buffers()
 
+	// TODO acreate an object shader and link it to the GameObject
 	// Link the vertex and fragment shader
 	const shader_vertex = get_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX")
 	const shader_fragment = get_shader(shader_fragment_source, GL.FRAGMENT_SHADER, "FRAGMENT")
@@ -80,12 +85,23 @@ const main = function () {
 	GL.attachShader(MANDELBOX_PROGRAM, shader_vertex)
 	GL.attachShader(MANDELBOX_PROGRAM, shader_fragment)
 	GL.linkProgram(MANDELBOX_PROGRAM)
+	//TODO put it in the skybox part
+	//skybox shader
+	const skybox_vs = get_shader(skybox_vs_source, GL.VERTEX_SHADER, "SKYBOX VERTEX")
+	const skybox_fs = get_shader(skybox_fs_source, GL.FRAGMENT_SHADER, "SKYBOX FRAGMENT")
+	const SKYBOX_PROGRAM = GL.createProgram()
+	GL.attachShader(SKYBOX_PROGRAM, skybox_vs)
+	GL.attachShader(SKYBOX_PROGRAM, skybox_fs)
+	GL.linkProgram(SKYBOX_PROGRAM)
 
 	let bufftex = create_framebuffer(CANVAS.width, CANVAS.height)
 
 	//MVP Matrix
 	let p_matrix = mat4.create()
 	mat4.perspective(p_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
+	// TODO put it in the skybox object
+	let p_skybox_matrix = mat4.create()
+	mat4.perspective(p_skybox_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 1000000.0)
 
 	//global lightning
 	let global_light = vec3.fromValues(1, -1, 1)
@@ -120,7 +136,11 @@ const main = function () {
 		}
 		time_old = time
 
+		GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
+		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+
 		const draw_mandlebox = function () {
+			GL.useProgram(MANDELBOX_PROGRAM)
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
 			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screen_size_in")
 			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
@@ -144,9 +164,6 @@ const main = function () {
 				element.children[0].scale[1] = 4 * Math.sin(time / 1000)
 			}
 
-			GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
-			GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
-
 			for (let cube of cubes) {
 				cube.draw()
 			}
@@ -154,11 +171,21 @@ const main = function () {
 			GL.flush()
 		}
 
-		GL.useProgram(MANDELBOX_PROGRAM)
-
 		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 
 		draw_mandlebox()
+
+		const draw_skybox = function() {
+			GL.useProgram(SKYBOX_PROGRAM)
+			skybox.set_shader_program(SKYBOX_PROGRAM)
+
+			p_matrix_in = GL.getUniformLocation(SKYBOX_PROGRAM, "p_matrix")
+			GL.uniformMatrix4fv(p_matrix_in, false, p_skybox_matrix)
+			skybox.rotate[1] = 4 * Math.sin(time / 1000)
+
+			skybox.draw()
+		}
+		draw_skybox()
 
 		first_loop++;
 	}

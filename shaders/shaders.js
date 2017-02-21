@@ -9,3 +9,5 @@ function loadTextFile(url) {
 
 const shader_fragment_source = loadTextFile("shaders/fragment_shader.glsl");
 const shader_vertex_source = loadTextFile("shaders/vertex_shader.glsl");
+const skybox_fs_source = loadTextFile("shaders/skybox_fs.glsl");
+const skybox_vs_source = loadTextFile("shaders/skybox_vs.glsl");
