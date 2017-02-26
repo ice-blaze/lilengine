@@ -16,7 +16,7 @@ class GameObject {
 
 	static create(GL, path, name = "name") {
 		const object = new GameObject()
-		const file = loadTextFile("./models/cube.obj")
+		const file = loadTextFile(path)
 		const obj_mesh = new OBJ.Mesh(file)
 
 		object.name = name
