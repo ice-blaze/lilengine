@@ -1,0 +1,77 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: black;
+}
+
+
+/* -- CANVAS PART -- */
+
+.counter_label {
+	padding: 0.5em;
+	background-color: rgba(0, 0, 0, 0.65);
+	position: fixed;
+	color: white;
+	font-family: "Lucida Console", Monaco, monospace;
+	z-index: 100000;
+}
+
+canvas {
+	top: 0;
+	left: 0;
+	position: relative;
+	background-color: yellow;
+}
+
+
+/* -- MENU -- */
+
+#verticalMenus {
+	height: 100%;
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+}
+
+#topMenu {
+	-webkit-flex: initial;
+	flex: initial;
+	height: 10%;
+	min-height: 10%;
+	text-align: center;
+	background-color: red;
+}
+
+#horizontalMenus {
+	width: 100%;
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: row;
+	-webkit-flex: 1;
+	flex: 1;
+}
+
+#leftMenu {
+	background-color: red;
+	-webkit-flex: initial;
+	flex: initial;
+	width: 10%;
+	min-width: 10%;
+}
+
+#canvas-container {
+	text-align: center;
+	-webkit-flex: 1;
+	flex: 1;
+}
+
+#rightMenu {
+	width: 10%;
+	max-width: 10%;
+	height: auto;
+	background-color: red;
+	-webkit-flex: 2;
+	flex: 2;
+}

@@ -4,6 +4,7 @@
   "description": "Unity like engine in the browser",
   "main": " ",
   "dependencies": {
+    "foundation-sites": "^6.3.0",
     "gl-matrix": "^2.3.2",
     "jquery": "^3.1.1",
     "webgl-obj-loader": "^0.1.1"

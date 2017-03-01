@@ -1,6 +1,9 @@
 var canvas_play = true
 var animate = undefined
 var first_loop = 0
+const gameobject_hierarchy = []
+const elements = []
+
 
 const main = function () {
 	const CANVAS = document.getElementById("demo_canvas")
@@ -21,15 +24,15 @@ const main = function () {
 	GL.enable(GL.DEPTH_TEST)
 	GL.depthFunc(GL.LESS);
 
-	const cubes = []
-	const elements = []
-	for (var i = 0; i < 5; i++) {
+	const MAX_OBJ = 4
+	for (var i = 0; i < MAX_OBJ; i++) {
 		const cube1 = GameObject.create(GL, "./models/cube.obj", "obja" + i)
 		const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
 		cube1.set_child(cube2)
-		cubes.push(cube1)
-		cubes.push(cube2)
+
+		gameobject_hierarchy.push(cube1)
 		elements.push(cube1)
+		elements.push(cube2)
 
 		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)])
 		cube2.position.set([-2.0, 0.0, -0.0])
@@ -72,7 +75,7 @@ const main = function () {
 		}
 	}
 
-	for (let cube of cubes) {
+	for (let cube of elements) {
 		cube.init_buffers()
 	}
 	skybox.init_buffers()
@@ -151,21 +154,21 @@ const main = function () {
 			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "p_matrix")
 			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
 
-			for (let cube of cubes) {
-				cube.set_shader_program(MANDELBOX_PROGRAM)
+			for (let game_object of elements) {
+				game_object.set_shader_program(MANDELBOX_PROGRAM)
 			}
 
-			for (let element of elements) {
+			for (let parent of gameobject_hierarchy) {
 				// position could shift because of floating precision errors
-				element.position[0] += Math.sin(time / 1000) / 100
-				element.rotate[0] = 4 * Math.sin(time / 1000)
-				element.rotate[1] = 4 * Math.sin(time / 1000)
+				parent.position[0] += Math.sin(time / 1000) / 100
+				parent.rotate[0] = 4 * Math.sin(time / 1000)
+				parent.rotate[1] = 4 * Math.sin(time / 1000)
 				// cube1.scale[0] = 4 * Math.sin(time/1000)
-				element.children[0].scale[1] = 4 * Math.sin(time / 1000)
+				parent.children[0].scale[1] = 4 * Math.sin(time / 1000)
 			}
 
-			for (let cube of cubes) {
-				cube.draw()
+			for (let game_object of elements) {
+				game_object.draw()
 			}
 
 			GL.flush()

@@ -92,6 +92,8 @@ class GameObject {
 		new_parent.parent = this.parent
 		this.parent = new_parent
 		new_parent.children.push(this)
+
+		view.update_hierarchy()
 	}
 
 	set_child(child) {
@@ -114,6 +116,8 @@ class GameObject {
 
 		this.children.push(child)
 		child.parent = this
+
+		view.update_hierarchy()
 	}
 
 	draw() {
