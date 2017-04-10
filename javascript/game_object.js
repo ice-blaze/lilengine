@@ -123,8 +123,14 @@ class GameObject {
 	draw() {
 		const GL = this.GL
 
+		const mv_matrix = this.model_matrix()
+		let normal_matrix = mat4.create()
+		mat4.invert(normal_matrix, mv_matrix)
+		mat4.transpose(normal_matrix, normal_matrix)
+		this.normal_matrix_in = GL.getUniformLocation(this.program, "normal_matrix")
+		GL.uniformMatrix4fv(this.normal_matrix_in, false, normal_matrix)
 		this.mv_matrix_in = GL.getUniformLocation(this.program, "mv_matrix")
-		GL.uniformMatrix4fv(this.mv_matrix_in, false, this.model_matrix())
+		GL.uniformMatrix4fv(this.mv_matrix_in, false, mv_matrix)
 		this.normal_in = GL.getAttribLocation(this.program, "normal")
 		GL.enableVertexAttribArray(this.normal_in)
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer);

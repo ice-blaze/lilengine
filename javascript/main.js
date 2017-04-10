@@ -3,6 +3,7 @@ var animate = undefined
 var first_loop = 0
 const gameobject_hierarchy = []
 const elements = []
+let selected_game_object = null
 
 
 const main = function () {
@@ -27,12 +28,15 @@ const main = function () {
 	const MAX_OBJ = 4
 	for (var i = 0; i < MAX_OBJ; i++) {
 		const cube1 = GameObject.create(GL, "./models/cube.obj", "obja" + i)
-		const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
+		// const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
+		const cube2 = GameObject.create(GL, "./models/bunny.obj", "objb" + i)
+		console.log("generated " + i + "/" + MAX_OBJ)
 		cube1.set_child(cube2)
 
 		gameobject_hierarchy.push(cube1)
 		elements.push(cube1)
 		elements.push(cube2)
+		selected_game_object = cube1
 
 		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)])
 		cube2.position.set([-2.0, 0.0, -0.0])
