@@ -67,8 +67,8 @@ class GameObject {
 	}
 
 	set_parent(new_parent) {
-		if (!new_parent instanceof GameObject) {
-			console.warn('Trying to set a parent that is not a GameObject')
+		if (!(new_parent instanceof GameObject)) {
+			console.warn("Trying to set a parent that is not a GameObject")
 			return
 		}
 		if (new_parent === this) {
@@ -97,8 +97,8 @@ class GameObject {
 	}
 
 	set_child(child) {
-		if (!child instanceof GameObject) {
-			console.warn('Trying to add a child that is not a GameObject')
+		if (!(child instanceof GameObject)) {
+			console.warn("Trying to add a child that is not a GameObject")
 			return
 		}
 		if (child === this) {
@@ -133,8 +133,8 @@ class GameObject {
 		GL.uniformMatrix4fv(this.mv_matrix_in, false, mv_matrix)
 		this.normal_in = GL.getAttribLocation(this.program, "normal")
 		GL.enableVertexAttribArray(this.normal_in)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer);
-		GL.vertexAttribPointer(this.normal_in, 3, GL.FLOAT, false, 0, 0);
+		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer)
+		GL.vertexAttribPointer(this.normal_in, 3, GL.FLOAT, false, 0, 0)
 		this.coord_in = GL.getAttribLocation(this.program, "coordinate")
 		GL.enableVertexAttribArray(this.coord_in)
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
@@ -142,6 +142,5 @@ class GameObject {
 		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
 
 		GL.drawElements(GL.TRIANGLES, this.indices.length, GL.UNSIGNED_SHORT, 0)
-
 	}
 }
