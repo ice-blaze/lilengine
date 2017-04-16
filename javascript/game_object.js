@@ -63,7 +63,7 @@ class GameObject {
 	}
 
 	remove_from_children(object) {
-		remove_array(this.children, object)
+		removeArray(this.children, object)
 	}
 
 	set_parent(new_parent) {
