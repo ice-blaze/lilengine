@@ -2,12 +2,12 @@
 
 function loadTextFile(url) {
 	const request = new XMLHttpRequest()
-	request.open('GET', url, false)
+	request.open("GET", url, false)
 	request.send()
 	return request.responseText
 }
 
-const shader_fragment_source = loadTextFile("shaders/fragment_shader.glsl");
-const shader_vertex_source = loadTextFile("shaders/vertex_shader.glsl");
-const skybox_fs_source = loadTextFile("shaders/skybox_fs.glsl");
-const skybox_vs_source = loadTextFile("shaders/skybox_vs.glsl");
+const shader_fragment_source = loadTextFile("shaders/fragment_shader.glsl")
+const shader_vertex_source = loadTextFile("shaders/vertex_shader.glsl")
+const skybox_fs_source = loadTextFile("shaders/skybox_fs.glsl")
+const skybox_vs_source = loadTextFile("shaders/skybox_vs.glsl")
