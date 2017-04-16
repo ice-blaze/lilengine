@@ -1,10 +1,9 @@
-var canvas_play = true
-var animate = undefined
-var first_loop = 0
+let canvas_play = true
+let animate = undefined
+let first_loop = 0
 const gameobject_hierarchy = []
 const elements = []
 let selected_game_object = null
-
 
 const main = function () {
 	const CANVAS = document.getElementById("demo_canvas")
@@ -15,7 +14,7 @@ const main = function () {
 	let GL
 	try {
 		GL = CANVAS.getContext("experimental-webgl", {
-			antialias: true
+			antialias: true,
 		})
 	} catch (e) {
 		alert("You are not webgl compatible :(")
@@ -26,11 +25,11 @@ const main = function () {
 	GL.depthFunc(GL.LESS);
 
 	const MAX_OBJ = 4
-	for (var i = 0; i < MAX_OBJ; i++) {
+	for (let i = 0; i < MAX_OBJ; i++) {
 		const cube1 = GameObject.create(GL, "./models/cube.obj", "obja" + i)
 		// const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
 		const cube2 = GameObject.create(GL, "./models/bunny.obj", "objb" + i)
-		console.log("generated " + i + "/" + MAX_OBJ)
+		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.set_child(cube2)
 
 		gameobject_hierarchy.push(cube1)
@@ -38,7 +37,9 @@ const main = function () {
 		elements.push(cube2)
 		selected_game_object = cube1
 
-		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)])
+		cube1.position.set([
+			(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)
+		])
 		cube2.position.set([-2.0, 0.0, -0.0])
 	}
 
@@ -50,7 +51,7 @@ const main = function () {
 		GL.shaderSource(shader, source)
 		GL.compileShader(shader)
 		if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)) {
-			console.log("ERROR IN " + typeString + " SHADER : " + GL.getShaderInfoLog(shader))
+			console.log(`ERROR IN ${typeString} SHADER : ${GL.getShaderInfoLog(shader)}`)
 			return false
 		}
 		return shader
@@ -58,24 +59,26 @@ const main = function () {
 
 	const create_framebuffer = function (width, height) {
 		// Framebuffer part
-		let buffer = GL.createFramebuffer();
-		GL.bindFramebuffer(GL.FRAMEBUFFER, buffer);
-		buffer.width = width;
-		buffer.height = height;
-		let texture = GL.createTexture();
-		GL.bindTexture(GL.TEXTURE_2D, texture);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
-		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, buffer.width, buffer.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
-		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0);
-		GL.bindTexture(GL.TEXTURE_2D, null);
-		GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+		let buffer = GL.createFramebuffer()
+		GL.bindFramebuffer(GL.FRAMEBUFFER, buffer)
+		buffer.width = width
+		buffer.height = height
+		let texture = GL.createTexture()
+		GL.bindTexture(GL.TEXTURE_2D, texture)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+		GL.texImage2D(
+			GL.TEXTURE_2D, 0, GL.RGBA, buffer.width, buffer.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null
+		)
+		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
+		GL.bindTexture(GL.TEXTURE_2D, null)
+		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 
 		return {
-			buffer: buffer,
-			texture: texture
+			buffer,
+			texture,
 		}
 	}
 
@@ -92,8 +95,8 @@ const main = function () {
 	GL.attachShader(MANDELBOX_PROGRAM, shader_vertex)
 	GL.attachShader(MANDELBOX_PROGRAM, shader_fragment)
 	GL.linkProgram(MANDELBOX_PROGRAM)
-	//TODO put it in the skybox part
-	//skybox shader
+	// TODO put it in the skybox part
+	// skybox shader
 	const skybox_vs = get_shader(skybox_vs_source, GL.VERTEX_SHADER, "SKYBOX VERTEX")
 	const skybox_fs = get_shader(skybox_fs_source, GL.FRAGMENT_SHADER, "SKYBOX FRAGMENT")
 	const SKYBOX_PROGRAM = GL.createProgram()
@@ -127,7 +130,7 @@ const main = function () {
 
 	animate = function (time) {
 		window.requestAnimationFrame(animate)
-		if (!canvas_play && first_loop > 1) { //need to do two times the loop for an image
+		if (!canvas_play && first_loop > 1) { // need to do two times the loop for an image
 			COUNTER.innerHTML = 0
 			return
 		}
@@ -136,7 +139,7 @@ const main = function () {
 		counter_list.push(dt)
 		floor_time = Math.floor(time / 1000)
 		if (last_mean < floor_time) {
-			mean = counter_list.reduce((a, b) => a + b, 0) / counter_list.length;
+			const mean = counter_list.reduce((a, b) => a + b, 0) / counter_list.length
 			COUNTER.innerHTML = Math.round(mean * 100) / 100
 			last_mean = floor_time
 			counter_list.length = 0
@@ -194,7 +197,7 @@ const main = function () {
 		}
 		draw_skybox()
 
-		first_loop++;
+		first_loop += 1
 	}
 	animate(0)
 }
