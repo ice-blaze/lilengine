@@ -44,8 +44,8 @@ class SkyBox {
 		this.vertices_buffer = GL.createBuffer()
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
 		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.vertices), GL.STATIC_DRAW)
-		this.texture_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.texture_buffer)
+		this.textureBuffer = GL.createBuffer()
+		GL.bindBuffer(GL.ARRAY_BUFFER, this.textureBuffer)
 		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.textures), GL.STATIC_DRAW)
 		this.indices_buffer = GL.createBuffer()
 		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
@@ -75,20 +75,20 @@ class SkyBox {
 
 		GL.activeTexture(GL.TEXTURE0)
 		GL.bindTexture(GL.TEXTURE_2D, this.texture)
-		GL.uniform1i(GL.getUniformLocation(this.program, "sampler_in"), 0)
+		GL.uniform1i(GL.getUniformLocation(this.program, "samplerIn"), 0)
 
 		this.mvMatrix = GL.getUniformLocation(this.program, "mvMatrix")
 		GL.uniformMatrix4fv(this.mvMatrix, false, this.modelMatrix())
 
-		this.coord_in = GL.getAttribLocation(this.program, "coordinate")
-		GL.enableVertexAttribArray(this.coord_in)
+		this.coordIn = GL.getAttribLocation(this.program, "coordinate")
+		GL.enableVertexAttribArray(this.coordIn)
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
-		GL.vertexAttribPointer(this.coord_in, 3, GL.FLOAT, false, 0, 0)
+		GL.vertexAttribPointer(this.coordIn, 3, GL.FLOAT, false, 0, 0)
 
-		this.texture_in = GL.getAttribLocation(this.program, "uv")
-		GL.enableVertexAttribArray(this.texture_in)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.texture_buffer)
-		GL.vertexAttribPointer(this.texture_in, 2, GL.FLOAT, false, 0, 0)
+		this.textureIn = GL.getAttribLocation(this.program, "uv")
+		GL.enableVertexAttribArray(this.textureIn)
+		GL.bindBuffer(GL.ARRAY_BUFFER, this.textureBuffer)
+		GL.vertexAttribPointer(this.textureIn, 2, GL.FLOAT, false, 0, 0)
 
 		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
 

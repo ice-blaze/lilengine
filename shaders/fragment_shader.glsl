@@ -1,11 +1,11 @@
 precision highp float;
 
-uniform float global_time_in;
-uniform vec2 screen_size_in;
+uniform float globalTimeIn;
+uniform vec2 screenSizeIn;
 
-varying vec3 v_lighting;
-varying vec3 v_normal;
+varying vec3 vLighting;
+varying vec3 vNormal;
 
 void main(void) {
-	gl_FragColor = vec4(v_lighting, 1.);
+	gl_FragColor = vec4(vLighting, 1.);
 }

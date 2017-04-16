@@ -4,21 +4,21 @@ attribute vec3 coordinate;
 attribute vec3 normal;
 
 uniform mat4 mvMatrix;
-uniform mat4 normal_matrix;
-uniform mat4 p_matrix;
-uniform vec3 global_light_in;
+uniform mat4 normalMatrix;
+uniform mat4 pMatrix;
+uniform vec3 globalLightIn;
 
-varying vec3 v_normal;
-varying vec3 v_lighting;
+varying vec3 vNormal;
+varying vec3 vLighting;
 
 void main() {
-	gl_Position = p_matrix * mvMatrix * vec4(coordinate, 1.0);
-	v_normal = normal;
+	gl_Position = pMatrix * mvMatrix * vec4(coordinate, 1.0);
+	vNormal = normal;
 	vec3 ambientLight = vec3(0.6, 0.6, 0.6);
 	vec3 directionalLightColor = vec3(0.5, 0.5, 0.75);
-	vec3 directionalVector = global_light_in;
+	vec3 directionalVector = globalLightIn;
 
-	vec4 transformedNormal = normal_matrix * vec4(normal, 1.0);
+	vec4 transformedNormal = normalMatrix * vec4(normal, 1.0);
 	float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-	v_lighting = ambientLight + (directionalLightColor * directional);
+	vLighting = ambientLight + (directionalLightColor * directional);
 }

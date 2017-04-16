@@ -152,13 +152,13 @@ const main = function () {
 		const draw_mandlebox = function () {
 			GL.useProgram(MANDELBOX_PROGRAM)
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
-			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screen_size_in")
+			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screenSizeIn")
 			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
-			global_light_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_light_in")
+			global_light_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalLightIn")
 			GL.uniform3fv(global_light_in, global_light)
-			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_time_in")
+			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalTimeIn")
 			GL.uniform1f(global_time, time / 1000)
-			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "p_matrix")
+			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "pMatrix")
 			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
 
 			for (let game_object of elements) {
@@ -189,7 +189,7 @@ const main = function () {
 			GL.useProgram(SKYBOX_PROGRAM)
 			skybox.setShaderProgram(SKYBOX_PROGRAM)
 
-			p_matrix_in = GL.getUniformLocation(SKYBOX_PROGRAM, "p_matrix")
+			p_matrix_in = GL.getUniformLocation(SKYBOX_PROGRAM, "pMatrix")
 			GL.uniformMatrix4fv(p_matrix_in, false, p_skybox_matrix)
 			skybox.rotate[1] = 4 * Math.sin(time / 1000)
 
