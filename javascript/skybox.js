@@ -26,15 +26,15 @@ class SkyBox {
 		skybox.texture = GL.createTexture()
 		skybox.image = new Image()
 		skybox.image.onload = function () {
-			GL.bindTexture(GL.TEXTURE_2D, skybox.texture);
-			GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, skybox.image);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-			GL.bindTexture(GL.TEXTURE_2D, null);
+			GL.bindTexture(GL.TEXTURE_2D, skybox.texture)
+			GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, skybox.image)
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+			GL.bindTexture(GL.TEXTURE_2D, null)
 		}
-		skybox.image.src = './skyboxes/default.png'
+		skybox.image.src = "./skyboxes/default.png"
 
 		return skybox
 	}
@@ -73,9 +73,9 @@ class SkyBox {
 	draw() {
 		const GL = this.GL
 
-		GL.activeTexture(GL.TEXTURE0);
-		GL.bindTexture(GL.TEXTURE_2D, this.texture);
-		GL.uniform1i(GL.getUniformLocation(this.program, 'sampler_in'), 0);
+		GL.activeTexture(GL.TEXTURE0)
+		GL.bindTexture(GL.TEXTURE_2D, this.texture)
+		GL.uniform1i(GL.getUniformLocation(this.program, "sampler_in"), 0)
 
 		this.mv_matrix_in = GL.getUniformLocation(this.program, "mv_matrix")
 		GL.uniformMatrix4fv(this.mv_matrix_in, false, this.model_matrix())
