@@ -39,8 +39,8 @@ class GameObject {
 		this.normals_buffer = GL.createBuffer()
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer)
 		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.normals), GL.STATIC_DRAW)
-		this.indices_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
+		this.indicesBuffer = GL.createBuffer()
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
 		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), GL.STATIC_DRAW)
 	}
 
@@ -139,7 +139,7 @@ class GameObject {
 		GL.enableVertexAttribArray(this.coordIn)
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.verticesBuffer)
 		GL.vertexAttribPointer(this.coordIn, 3, GL.FLOAT, false, 0, 0)
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
 
 		GL.drawElements(GL.TRIANGLES, this.indices.length, GL.UNSIGNED_SHORT, 0)
 	}

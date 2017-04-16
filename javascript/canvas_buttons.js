@@ -1,43 +1,43 @@
-const demo_canvas = document.getElementById("demo_canvas")
+const demoCanvas = document.getElementById("demo_canvas")
 
-const min_width = 320
-const min_height = 240
-const med_width = 640
-const med_height = 480
+const minWidth = 320
+const minHeight = 240
+const medWidth = 640
+const medHeight = 480
 
 // function play(){
 // 	canvas_play = !canvas_play
 // }
 // document.getElementById("btn_play").onclick = play
 
-function refresh_image() {
-	first_loop = 0
+function refreshImage() {
+	firstLoop = 0
 	window.requestAnimationFrame(animate)
 }
 
-function small_res() {
-	demo_canvas.width = min_width
-	demo_canvas.height = min_height
-	refresh_image()
+function smallRes() {
+	demoCanvas.width = minWidth
+	demoCanvas.height = minHeight
+	refreshImage()
 }
-document.getElementById("btn_small").onclick = small_res
+document.getElementById("btn_small").onclick = smallRes
 
-function medium_res() {
-	demo_canvas.width = med_width
-	demo_canvas.height = med_height
-	refresh_image()
+function mediumRes() {
+	demoCanvas.width = medWidth
+	demoCanvas.height = medHeight
+	refreshImage()
 }
-document.getElementById("btn_medium").onclick = medium_res
+document.getElementById("btn_medium").onclick = mediumRes
 
 document.getElementById("btn_fullscreen").onclick = function () {
-	demo_canvas.width = screen.width
-	demo_canvas.height = screen.height
+	demoCanvas.width = screen.width
+	demoCanvas.height = screen.height
 	if (navigator.userAgent.search("Firefox") > -1) {
-		demo_canvas.mozRequestFullScreen()
+		demoCanvas.mozRequestFullScreen()
 	} else {
-		demo_canvas.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT)
+		demoCanvas.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT)
 	}
-	refresh_image()
+	refreshImage()
 }
 
 function onFullScreenChange() {
@@ -47,7 +47,7 @@ function onFullScreenChange() {
 		document.mozFullScreenElement ||
 		document.msFullscreenElement
 	)) {
-		small_res()
+		smallRes()
 	}
 }
 

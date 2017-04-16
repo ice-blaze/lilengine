@@ -3,20 +3,20 @@ const view = {
 	update_hierarchy() {
 		$("#gameobject_hierarchy>li").remove()
 		let i = 0
-		gameobject_hierarchy.forEach((gameobject) => {
+		gameObjectHierarchy.forEach((gameobject) => {
 			i += 1
 			$("#gameobject_hierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a></li>`)
 			$("#" + gameobject.name).click((ev) => {
-				selected_game_object = gameobject_hierarchy[ev.currentTarget.name]
+				selectedGameObject = gameObjectHierarchy[ev.currentTarget.name]
 				view.update_inspector()
 			})
 		})
 	},
 	update_inspector() {
 		$("#gameobject_inspector").empty()
-		const sgo = selected_game_object
+		const sgo = selectedGameObject
 		const decimal = 4
-		if(sgo) {
+		if (sgo) {
 			$("#gameobject_inspector").append(
 				`${sgo.name}<br>
 				position: <br>
@@ -39,25 +39,25 @@ const view = {
 }
 
 // Add events on the panels button to show and hide them
-const menu_appearing_time = 500
+const menuAppearingTime = 500
 
 $(document).ready(() => {
 	$("#leftMenuButton").click(() => {
 		$("#leftMenu").toggle("slide", {
 			direction: "left",
-		}, menu_appearing_time)
+		}, menuAppearingTime)
 	})
 
 	$("#topMenuButton").click(() => {
 		$("#topMenu").toggle("slide", {
 			direction: "up",
-		}, menu_appearing_time)
+		}, menuAppearingTime)
 	})
 
 	$("#rightMenuButton").click(() => {
 		$("#rightMenu").toggle("slide", {
 			direction: "right",
-		}, menu_appearing_time)
+		}, menuAppearingTime)
 	})
 
 	view.update_inspector()

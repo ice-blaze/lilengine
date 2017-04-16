@@ -1,9 +1,9 @@
-let canvas_play = true
+let canvasPlay = true
 let animate = undefined
-let first_loop = 0
-const gameobject_hierarchy = []
+let firstLoop = 0
+const gameObjectHierarchy = []
 const elements = []
-let selected_game_object = null
+let selectedGameObject = null
 
 const main = function () {
 	const CANVAS = document.getElementById("demo_canvas")
@@ -32,10 +32,10 @@ const main = function () {
 		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.setChild(cube2)
 
-		gameobject_hierarchy.push(cube1)
+		gameObjectHierarchy.push(cube1)
 		elements.push(cube1)
 		elements.push(cube2)
-		selected_game_object = cube1
+		selectedGameObject = cube1
 
 		cube1.position.set([
 			(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)
@@ -46,7 +46,7 @@ const main = function () {
 	const skybox = SkyBox.create(GL, "skybox")
 	skybox.scale.set([100000, 100000, 100000])
 
-	const get_shader = function (source, type, typeString) {
+	const getShader = function (source, type, typeString) {
 		const shader = GL.createShader(type)
 		GL.shaderSource(shader, source)
 		GL.compileShader(shader)
@@ -89,62 +89,60 @@ const main = function () {
 
 	// TODO acreate an object shader and link it to the GameObject
 	// Link the vertex and fragment shader
-	const shader_vertex = get_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX")
-	const shader_fragment = get_shader(shader_fragment_source, GL.FRAGMENT_SHADER, "FRAGMENT")
+	const shaderVertex = getShader(shaderVertexSource, GL.VERTEX_SHADER, "VERTEX")
+	const shaderFragment = getShader(shaderFragmentSource, GL.FRAGMENT_SHADER, "FRAGMENT")
 	const MANDELBOX_PROGRAM = GL.createProgram()
-	GL.attachShader(MANDELBOX_PROGRAM, shader_vertex)
-	GL.attachShader(MANDELBOX_PROGRAM, shader_fragment)
+	GL.attachShader(MANDELBOX_PROGRAM, shaderVertex)
+	GL.attachShader(MANDELBOX_PROGRAM, shaderFragment)
 	GL.linkProgram(MANDELBOX_PROGRAM)
 	// TODO put it in the skybox part
 	// skybox shader
-	const skybox_vs = get_shader(skybox_vs_source, GL.VERTEX_SHADER, "SKYBOX VERTEX")
-	const skybox_fs = get_shader(skybox_fs_source, GL.FRAGMENT_SHADER, "SKYBOX FRAGMENT")
+	const skyboxVs = getShader(skyboxVsSource, GL.VERTEX_SHADER, "SKYBOX VERTEX")
+	const skyboxFs = getShader(skyboxFsSource, GL.FRAGMENT_SHADER, "SKYBOX FRAGMENT")
 	const SKYBOX_PROGRAM = GL.createProgram()
-	GL.attachShader(SKYBOX_PROGRAM, skybox_vs)
-	GL.attachShader(SKYBOX_PROGRAM, skybox_fs)
+	GL.attachShader(SKYBOX_PROGRAM, skyboxVs)
+	GL.attachShader(SKYBOX_PROGRAM, skyboxFs)
 	GL.linkProgram(SKYBOX_PROGRAM)
 
 	let bufftex = create_framebuffer(CANVAS.width, CANVAS.height)
 
 	//MVP Matrix
-	let p_matrix = mat4.create()
-	mat4.perspective(p_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
+	let pMatrix = mat4.create()
+	mat4.perspective(pMatrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
 	// TODO put it in the skybox object
 	let p_skybox_matrix = mat4.create()
 	mat4.perspective(p_skybox_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 1000000.0)
 
 	//global lightning
-	let global_light = vec3.fromValues(1, -1, 1)
-	vec3.normalize(global_light, global_light)
+	let globalLight = vec3.fromValues(1, -1, 1)
+	vec3.normalize(globalLight, globalLight)
 
-	let screen_size_in
-	let global_time
-	let p_matrix_in
-	let global_light_in
+	let screenSizeIn
+	let globalTime
+	let pMatrixIn
+	let globalLightIn
 
-	let time_old = 0
-	let counter_list = []
-	let last_mean = 0
-
-	let temp_var
+	let timeOld = 0
+	const counterList = []
+	let lastMean = 0
 
 	animate = function (time) {
 		window.requestAnimationFrame(animate)
-		if (!canvas_play && first_loop > 1) { // need to do two times the loop for an image
+		if (!canvasPlay && firstLoop > 1) { // need to do two times the loop for an image
 			COUNTER.innerHTML = 0
 			return
 		}
 
-		let dt = time - time_old
-		counter_list.push(dt)
-		floor_time = Math.floor(time / 1000)
-		if (last_mean < floor_time) {
-			const mean = counter_list.reduce((a, b) => a + b, 0) / counter_list.length
+		const dt = time - timeOld
+		counterList.push(dt)
+		const floorTime = Math.floor(time / 1000)
+		if (lastMean < floorTime) {
+			const mean = counterList.reduce((a, b) => a + b, 0) / counterList.length
 			COUNTER.innerHTML = Math.round(mean * 100) / 100
-			last_mean = floor_time
-			counter_list.length = 0
+			lastMean = floorTime
+			counterList.length = 0
 		}
-		time_old = time
+		timeOld = time
 
 		GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
 		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
@@ -152,20 +150,20 @@ const main = function () {
 		const draw_mandlebox = function () {
 			GL.useProgram(MANDELBOX_PROGRAM)
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
-			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screenSizeIn")
-			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
-			global_light_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalLightIn")
-			GL.uniform3fv(global_light_in, global_light)
-			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalTimeIn")
-			GL.uniform1f(global_time, time / 1000)
-			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "pMatrix")
-			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
+			screenSizeIn = GL.getUniformLocation(MANDELBOX_PROGRAM, "screenSizeIn")
+			GL.uniform2f(screenSizeIn, CANVAS.width, CANVAS.height)
+			globalLightIn = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalLightIn")
+			GL.uniform3fv(globalLightIn, globalLight)
+			globalTime = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalTimeIn")
+			GL.uniform1f(globalTime, time / 1000)
+			pMatrixIn = GL.getUniformLocation(MANDELBOX_PROGRAM, "pMatrix")
+			GL.uniformMatrix4fv(pMatrixIn, false, pMatrix)
 
 			for (let game_object of elements) {
 				game_object.setShaderProgram(MANDELBOX_PROGRAM)
 			}
 
-			for (let parent of gameobject_hierarchy) {
+			for (let parent of gameObjectHierarchy) {
 				// position could shift because of floating precision errors
 				parent.position[0] += Math.sin(time / 1000) / 100
 				parent.rotate[0] = 4 * Math.sin(time / 1000)
@@ -189,15 +187,15 @@ const main = function () {
 			GL.useProgram(SKYBOX_PROGRAM)
 			skybox.setShaderProgram(SKYBOX_PROGRAM)
 
-			p_matrix_in = GL.getUniformLocation(SKYBOX_PROGRAM, "pMatrix")
-			GL.uniformMatrix4fv(p_matrix_in, false, p_skybox_matrix)
+			pMatrixIn = GL.getUniformLocation(SKYBOX_PROGRAM, "pMatrix")
+			GL.uniformMatrix4fv(pMatrixIn, false, p_skybox_matrix)
 			skybox.rotate[1] = 4 * Math.sin(time / 1000)
 
 			skybox.draw()
 		}
 		draw_skybox()
 
-		first_loop += 1
+		firstLoop += 1
 	}
 	animate(0)
 }
