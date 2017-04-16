@@ -17,21 +17,21 @@ class GameObject {
 	static create(GL, path, name = "name") {
 		const object = new GameObject()
 		const file = loadTextFile(path)
-		const obj_mesh = new OBJ.Mesh(file)
+		const objMesh = new OBJ.Mesh(file)
 
 		object.name = name
 
-		object.vertices = obj_mesh.vertices
-		object.textures = obj_mesh.textures
-		object.indices = obj_mesh.indices
-		object.normals = obj_mesh.vertexNormals
+		object.vertices = objMesh.vertices
+		object.textures = objMesh.textures
+		object.indices = objMesh.indices
+		object.normals = objMesh.vertexNormals
 
 		object.GL = GL
 
 		return object
 	}
 
-	init_buffers() {
+	initBuffers() {
 		const GL = this.GL
 		this.vertices_buffer = GL.createBuffer()
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
@@ -44,10 +44,10 @@ class GameObject {
 		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), GL.STATIC_DRAW)
 	}
 
-	model_matrix() {
+	modelMatrix() {
 		let model = mat4.create()
 		if (this.parent) {
-			model = this.parent.model_matrix()
+			model = this.parent.modelMatrix()
 		}
 		mat4.translate(model, model, this.position)
 		mat4.rotateX(model, model, this.rotate[0])
@@ -58,45 +58,45 @@ class GameObject {
 		return model
 	}
 
-	set_shader_program(program) {
+	setShaderProgram(program) {
 		this.program = program
 	}
 
-	remove_from_children(object) {
+	removeFromChildren(object) {
 		removeArray(this.children, object)
 	}
 
-	set_parent(new_parent) {
-		if (!(new_parent instanceof GameObject)) {
+	setParent(newParent) {
+		if (!(newParent instanceof GameObject)) {
 			console.warn("Trying to set a parent that is not a GameObject")
 			return
 		}
-		if (new_parent === this) {
+		if (newParent === this) {
 			console.warn("Parent can't be the object its self")
 			return
 		}
-		if (new_parent === this.parent) {
+		if (newParent === this.parent) {
 			console.warn("Already a parent")
 			return
 		}
 
-		if (new_parent.parent) {
-			new_parent.parent.remove_from_children(new_parent)
+		if (newParent.parent) {
+			newParent.parent.removeFromChildren(newParent)
 		}
 
 		if (this.parent) {
-			this.parent.remove_from_children(this)
-			this.parent.children.push(new_parent)
+			this.parent.removeFromChildren(this)
+			this.parent.children.push(newParent)
 		}
 
-		new_parent.parent = this.parent
-		this.parent = new_parent
-		new_parent.children.push(this)
+		newParent.parent = this.parent
+		this.parent = newParent
+		newParent.children.push(this)
 
 		view.update_hierarchy()
 	}
 
-	set_child(child) {
+	setChild(child) {
 		if (!(child instanceof GameObject)) {
 			console.warn("Trying to add a child that is not a GameObject")
 			return
@@ -111,7 +111,7 @@ class GameObject {
 		}
 
 		if (child.parent) {
-			child.parent.remove_from_children(child)
+			child.parent.removeFromChildren(child)
 		}
 
 		this.children.push(child)
@@ -123,14 +123,14 @@ class GameObject {
 	draw() {
 		const GL = this.GL
 
-		const mv_matrix = this.model_matrix()
+		const mvMatrix = this.modelMatrix()
 		let normal_matrix = mat4.create()
-		mat4.invert(normal_matrix, mv_matrix)
+		mat4.invert(normal_matrix, mvMatrix)
 		mat4.transpose(normal_matrix, normal_matrix)
 		this.normal_matrix_in = GL.getUniformLocation(this.program, "normal_matrix")
 		GL.uniformMatrix4fv(this.normal_matrix_in, false, normal_matrix)
-		this.mv_matrix_in = GL.getUniformLocation(this.program, "mv_matrix")
-		GL.uniformMatrix4fv(this.mv_matrix_in, false, mv_matrix)
+		this.mv_matrix_in = GL.getUniformLocation(this.program, "mvMatrix")
+		GL.uniformMatrix4fv(this.mv_matrix_in, false, mvMatrix)
 		this.normal_in = GL.getAttribLocation(this.program, "normal")
 		GL.enableVertexAttribArray(this.normal_in)
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer)

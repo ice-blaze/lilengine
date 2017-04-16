@@ -13,13 +13,13 @@ class SkyBox {
 	static create(GL, name = "name") {
 		const skybox = new SkyBox()
 		const file = loadTextFile("./skyboxes/skybox.obj")
-		const skybox_mesh = new OBJ.Mesh(file)
+		const skyboxMesh = new OBJ.Mesh(file)
 
 		skybox.name = name
 
-		skybox.vertices = skybox_mesh.vertices
-		skybox.textures = skybox_mesh.textures
-		skybox.indices = skybox_mesh.indices
+		skybox.vertices = skyboxMesh.vertices
+		skybox.textures = skyboxMesh.textures
+		skybox.indices = skyboxMesh.indices
 
 		skybox.GL = GL
 
@@ -39,7 +39,7 @@ class SkyBox {
 		return skybox
 	}
 
-	init_buffers() {
+	initBuffers() {
 		const GL = this.GL
 		this.vertices_buffer = GL.createBuffer()
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
@@ -52,10 +52,10 @@ class SkyBox {
 		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), GL.STATIC_DRAW)
 	}
 
-	model_matrix() {
+	modelMatrix() {
 		let model = mat4.create()
 		if (this.parent) {
-			model = this.parent.model_matrix()
+			model = this.parent.modelMatrix()
 		}
 		mat4.translate(model, model, this.position)
 		mat4.rotateX(model, model, this.rotate[0])
@@ -66,7 +66,7 @@ class SkyBox {
 		return model
 	}
 
-	set_shader_program(program) {
+	setShaderProgram(program) {
 		this.program = program
 	}
 
@@ -77,8 +77,8 @@ class SkyBox {
 		GL.bindTexture(GL.TEXTURE_2D, this.texture)
 		GL.uniform1i(GL.getUniformLocation(this.program, "sampler_in"), 0)
 
-		this.mv_matrix_in = GL.getUniformLocation(this.program, "mv_matrix")
-		GL.uniformMatrix4fv(this.mv_matrix_in, false, this.model_matrix())
+		this.mvMatrix = GL.getUniformLocation(this.program, "mvMatrix")
+		GL.uniformMatrix4fv(this.mvMatrix, false, this.modelMatrix())
 
 		this.coord_in = GL.getAttribLocation(this.program, "coordinate")
 		GL.enableVertexAttribArray(this.coord_in)

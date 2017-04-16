@@ -9,10 +9,10 @@
 	const gameobject4 = new GameObject("gameobject4")
 	const gameobject5 = new GameObject("gameobject5")
 
-	gameobject2.set_parent(gameobject1)
-	gameobject1.set_child(gameobject3)
-	gameobject3.set_child(gameobject4)
-	gameobject3.set_child(gameobject5)
+	gameobject2.setParent(gameobject1)
+	gameobject1.setChild(gameobject3)
+	gameobject3.setChild(gameobject4)
+	gameobject3.setChild(gameobject5)
 
 	if (gameobject1.parent !== null) {
 		console.error("Nope")
@@ -27,9 +27,9 @@
 		console.error("Nope")
 	}
 
-	gameobject2.set_parent(gameobject3)
-	gameobject1.set_child(gameobject3)
-	gameobject2.set_parent(gameobject3)
+	gameobject2.setParent(gameobject3)
+	gameobject1.setChild(gameobject3)
+	gameobject2.setParent(gameobject3)
 
 	if (gameobject1.children[0] !== gameobject3) {
 		console.error("Nope")

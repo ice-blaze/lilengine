@@ -30,7 +30,7 @@ const main = function () {
 		// const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
 		const cube2 = GameObject.create(GL, "./models/bunny.obj", "objb" + i)
 		console.log(`generated ${i}/${MAX_OBJ}`)
-		cube1.set_child(cube2)
+		cube1.setChild(cube2)
 
 		gameobject_hierarchy.push(cube1)
 		elements.push(cube1)
@@ -83,9 +83,9 @@ const main = function () {
 	}
 
 	for (let cube of elements) {
-		cube.init_buffers()
+		cube.initBuffers()
 	}
-	skybox.init_buffers()
+	skybox.initBuffers()
 
 	// TODO acreate an object shader and link it to the GameObject
 	// Link the vertex and fragment shader
@@ -162,7 +162,7 @@ const main = function () {
 			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
 
 			for (let game_object of elements) {
-				game_object.set_shader_program(MANDELBOX_PROGRAM)
+				game_object.setShaderProgram(MANDELBOX_PROGRAM)
 			}
 
 			for (let parent of gameobject_hierarchy) {
@@ -187,7 +187,7 @@ const main = function () {
 
 		const draw_skybox = function () {
 			GL.useProgram(SKYBOX_PROGRAM)
-			skybox.set_shader_program(SKYBOX_PROGRAM)
+			skybox.setShaderProgram(SKYBOX_PROGRAM)
 
 			p_matrix_in = GL.getUniformLocation(SKYBOX_PROGRAM, "p_matrix")
 			GL.uniformMatrix4fv(p_matrix_in, false, p_skybox_matrix)
