@@ -1,11 +1,11 @@
 const view = {
 	// Refresh the hierarchypanel
 	update_hierarchy() {
-		$("#gameobject_hierarchy>li").remove()
+		$("#gameobjectHierarchy>li").remove()
 		let i = 0
 		gameObjectHierarchy.forEach((gameobject) => {
 			i += 1
-			$("#gameobject_hierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a></li>`)
+			$("#gameobjectHierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a></li>`)
 			$("#" + gameobject.name).click((ev) => {
 				selectedGameObject = gameObjectHierarchy[ev.currentTarget.name]
 				view.update_inspector()
@@ -13,11 +13,11 @@ const view = {
 		})
 	},
 	update_inspector() {
-		$("#gameobject_inspector").empty()
+		$("#gameobjectInspector").empty()
 		const sgo = selectedGameObject
 		const decimal = 4
 		if (sgo) {
-			$("#gameobject_inspector").append(
+			$("#gameobjectInspector").append(
 				`${sgo.name}<br>
 				position: <br>
 				x: ${sgo.position[0].toFixed(decimal)}<br>
@@ -33,7 +33,7 @@ const view = {
 				z: ${sgo.scale[2].toFixed(decimal)}<br>`
 			)
 		} else {
-			$("#gameobject_inspector").append("None")
+			$("#gameobjectInspector").append("None")
 		}
 	},
 }

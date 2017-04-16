@@ -1,4 +1,4 @@
-const demoCanvas = document.getElementById("demo_canvas")
+const demoCanvas = document.getElementById("demoCanvas")
 
 const minWidth = 320
 const minHeight = 240
@@ -20,16 +20,16 @@ function smallRes() {
 	demoCanvas.height = minHeight
 	refreshImage()
 }
-document.getElementById("btn_small").onclick = smallRes
+document.getElementById("btnSmall").onclick = smallRes
 
 function mediumRes() {
 	demoCanvas.width = medWidth
 	demoCanvas.height = medHeight
 	refreshImage()
 }
-document.getElementById("btn_medium").onclick = mediumRes
+document.getElementById("btnMedium").onclick = mediumRes
 
-document.getElementById("btn_fullscreen").onclick = function () {
+document.getElementById("btnFullscreen").onclick = function () {
 	demoCanvas.width = screen.width
 	demoCanvas.height = screen.height
 	if (navigator.userAgent.search("Firefox") > -1) {

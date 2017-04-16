@@ -6,7 +6,7 @@ const elements = []
 let selectedGameObject = null
 
 const main = function () {
-	const CANVAS = document.getElementById("demo_canvas")
+	const CANVAS = document.getElementById("demoCanvas")
 	const COUNTER = document.getElementById("counter")
 	CANVAS.width = 320
 	CANVAS.height = 240
