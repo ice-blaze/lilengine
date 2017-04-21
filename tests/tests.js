@@ -1,6 +1,8 @@
 // Simple testing
 // TODO should use a framework
 
+import GameObject from "../javascript/game_object"
+
 // first test
 {
 	const gameobject1 = new GameObject("gameobject1")

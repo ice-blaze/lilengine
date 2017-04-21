@@ -1,4 +1,10 @@
-class GameObject {
+import { vec3, mat4 } from "gl-matrix"
+import view from "./view"
+import { removeArray, loadTextFile } from "./utils"
+
+const OBJ = require("webgl-obj-loader")  // import are not availble
+
+export default class GameObject {
 	constructor(name = "GameObject") {
 		this.name = name
 		this.children = []
@@ -93,7 +99,7 @@ class GameObject {
 		this.parent = newParent
 		newParent.children.push(this)
 
-		view.update_hierarchy()
+		view.updateHierarchy()
 	}
 
 	setChild(child) {
@@ -117,7 +123,7 @@ class GameObject {
 		this.children.push(child)
 		child.parent = this
 
-		view.update_hierarchy()
+		view.updateHierarchy()
 	}
 
 	draw() {

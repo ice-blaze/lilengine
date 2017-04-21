@@ -1,3 +1,5 @@
+import GLB from "./main"
+
 const demoCanvas = document.getElementById("demoCanvas")
 
 const minWidth = 320
@@ -5,14 +7,14 @@ const minHeight = 240
 const medWidth = 640
 const medHeight = 480
 
-// function play(){
-// 	canvas_play = !canvas_play
+// function play() {
+//     GLB.canvasPlay = !GLB.canvasPlay
 // }
-// document.getElementById("btn_play").onclick = play
+// document.getElementById("btnPlay").onclick = play
 
 function refreshImage() {
-	firstLoop = 0
-	window.requestAnimationFrame(animate)
+	GLB.firstLoop = 0
+	window.requestAnimationFrame(GLB.animate)
 }
 
 function smallRes() {
@@ -29,7 +31,7 @@ function mediumRes() {
 }
 document.getElementById("btnMedium").onclick = mediumRes
 
-document.getElementById("btnFullscreen").onclick = function () {
+document.getElementById("btnFullscreen").onclick = () => {
 	demoCanvas.width = screen.width
 	demoCanvas.height = screen.height
 	if (navigator.userAgent.search("Firefox") > -1) {

@@ -1,13 +1,6 @@
-// Load synchronously the shaders. It's slower(0.5s) but code is more readable
+import { loadTextFile } from "../javascript/utils"
 
-function loadTextFile(url) {
-	const request = new XMLHttpRequest()
-	request.open("GET", url, false)
-	request.send()
-	return request.responseText
-}
-
-const shaderFragmentSource = loadTextFile("shaders/fragment_shader.glsl")
-const shaderVertexSource = loadTextFile("shaders/vertex_shader.glsl")
-const skyboxFsSource = loadTextFile("shaders/skybox_fs.glsl")
-const skyboxVsSource = loadTextFile("shaders/skybox_vs.glsl")
+export const shaderFragmentSource = loadTextFile("shaders/fragment_shader.glsl")
+export const shaderVertexSource = loadTextFile("shaders/vertex_shader.glsl")
+export const skyboxFsSource = loadTextFile("shaders/skybox_fs.glsl")
+export const skyboxVsSource = loadTextFile("shaders/skybox_vs.glsl")

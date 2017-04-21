@@ -1,24 +1,28 @@
+import $ from "jquery"
+import "jquery-ui"
+import GLB from "./main"
+
 const view = {
 	// Refresh the hierarchypanel
-	update_hierarchy() {
+	updateHierarchy() {
 		$("#gameobjectHierarchy>li").remove()
 		let i = 0
-		gameObjectHierarchy.forEach((gameobject) => {
+		GLB.gameObjectHierarchy.forEach((gameobject) => {
 			i += 1
 			$("#gameobjectHierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a></li>`)
-			$("#" + gameobject.name).click((ev) => {
-				selectedGameObject = gameObjectHierarchy[ev.currentTarget.name]
-				view.update_inspector()
+			$(`#${gameobject.name}`).click((ev) => {
+				GLB.selectedGameObject = GLB.gameObjectHierarchy[ev.currentTarget.name]
+				view.updateInspector()
 			})
 		})
 	},
-	update_inspector() {
+	updateInspector() {
 		$("#gameobjectInspector").empty()
-		const sgo = selectedGameObject
+		const sgo = GLB.selectedGameObject
 		const decimal = 4
 		if (sgo) {
-			$("#gameobjectInspector").append(
-				`${sgo.name}<br>
+			$("#gameobjectInspector").append(`
+				${sgo.name}<br>
 				position: <br>
 				x: ${sgo.position[0].toFixed(decimal)}<br>
 				y: ${sgo.position[1].toFixed(decimal)}<br>
@@ -30,13 +34,14 @@ const view = {
 				scale: <br>
 				x: ${sgo.scale[0].toFixed(decimal)}<br>
 				y: ${sgo.scale[1].toFixed(decimal)}<br>
-				z: ${sgo.scale[2].toFixed(decimal)}<br>`
-			)
+				z: ${sgo.scale[2].toFixed(decimal)}<br>
+			`)
 		} else {
 			$("#gameobjectInspector").append("None")
 		}
 	},
 }
+export default view
 
 // Add events on the panels button to show and hide them
 const menuAppearingTime = 500
@@ -60,9 +65,9 @@ $(document).ready(() => {
 		}, menuAppearingTime)
 	})
 
-	view.update_inspector()
+	view.updateInspector()
 })
 
 $(document).ready(() => {
-	setInterval(view.update_inspector, 1000)
+	setInterval(view.updateInspector, 1000)
 })

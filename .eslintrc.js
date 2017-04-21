@@ -3,6 +3,10 @@ module.exports = {
     "plugins": [
         "import"
     ],
+	"env": {
+		"browser": true,
+		"node": true
+	},
 	"rules": {
 		"semi": ["error", "never"],
 		"quotes": ["error", "double"],

@@ -1,4 +1,10 @@
-class SkyBox {
+import { vec3, mat4 } from "gl-matrix"
+// import { OBJ } from "webgl-obj-loader"
+import { loadTextFile } from "./utils"
+
+const OBJ = require("webgl-obj-loader")
+
+export default class SkyBox {
 	constructor(name = "GameObject") {
 		this.name = name
 		this.vertices = []
@@ -25,7 +31,7 @@ class SkyBox {
 
 		skybox.texture = GL.createTexture()
 		skybox.image = new Image()
-		skybox.image.onload = function () {
+		skybox.image.onload = () => {
 			GL.bindTexture(GL.TEXTURE_2D, skybox.texture)
 			GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, skybox.image)
 			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
