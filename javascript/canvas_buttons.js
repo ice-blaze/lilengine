@@ -22,14 +22,12 @@ function smallRes() {
 	demoCanvas.height = minHeight
 	refreshImage()
 }
-document.getElementById("btnSmall").onclick = smallRes
 
 function mediumRes() {
 	demoCanvas.width = medWidth
 	demoCanvas.height = medHeight
 	refreshImage()
 }
-document.getElementById("btnMedium").onclick = mediumRes
 
 document.getElementById("btnFullscreen").onclick = () => {
 	demoCanvas.width = screen.width
@@ -53,7 +51,13 @@ function onFullScreenChange() {
 	}
 }
 
-document.addEventListener("fullscreenchange", onFullScreenChange)
-document.addEventListener("webkitfullscreenchange", onFullScreenChange)
-document.addEventListener("mozfullscreenchange", onFullScreenChange)
-document.addEventListener("MSFullscreenChange", onFullScreenChange)
+export default function initCanvasButton() {
+	document.getElementById("btnSmall").onclick = smallRes
+	document.getElementById("btnMedium").onclick = mediumRes
+
+	document.addEventListener("fullscreenchange", onFullScreenChange)
+	document.addEventListener("webkitfullscreenchange", onFullScreenChange)
+	document.addEventListener("mozfullscreenchange", onFullScreenChange)
+	document.addEventListener("MSFullscreenChange", onFullScreenChange)
+}
+

@@ -7,6 +7,7 @@ import {
 } from "../shaders/shaders"
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
+import initCanvasButton from "./canvas_buttons"
 
 // GLOBALS
 const GLB = {
@@ -220,3 +221,5 @@ function main() {
 	return GLB.animate(0)
 }
 main()
+
+initCanvasButton()
