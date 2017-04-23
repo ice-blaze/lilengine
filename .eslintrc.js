@@ -5,7 +5,12 @@ module.exports = {
     ],
 	"env": {
 		"browser": true,
+		"mocha": true,
+		"protractor": true,
 		"node": true
+	},
+	"globals": {
+		"expect": true
 	},
 	"rules": {
 		"semi": ["error", "never"],

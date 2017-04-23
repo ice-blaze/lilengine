@@ -1,42 +1,43 @@
 {
-	"name": "lilengine",
-	"version": "0.0.1",
-	"description": "Unity like engine in the browser",
-	"main": " ",
-	"dependencies": {
-		"foundation-sites": "^6.3.0",
-		"gl-matrix": "^2.3.2",
-		"jquery": "^3.2.1",
-		"jquery-ui": "^1.12.1",
-		"webgl-obj-loader": "^0.1.1"
-	},
-	"devDependencies": {
-		"eslint": "^3.19.0",
-		"eslint-config-airbnb-base": "^11.1.3",
-		"eslint-plugin-import": "^2.2.0",
-		"http-server": "^0.9.0",
-		"pre-commit": "^1.2.2",
-		"shelljs": "^0.7.7",
-		"webpack": "^2.2.0"
-	},
-	"scripts": {
-		"server": "http-server",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"lint": "eslint ./ --ignore-pattern dist/",
-		"start": "http-server & webpack --progress --colors --watch",
-		"watch": "webpack --progress --colors --watch"
-	},
-	"pre-commit": [
-		"lint"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/ice-blaze/lilengine.git"
-	},
-	"author": "Ice-Blaze",
-	"license": "GPL-3.0",
-	"bugs": {
-		"url": "https://github.com/ice-blaze/lilengine/issues"
-	},
-	"homepage": "https://github.com/ice-blaze/lilengine#readme"
+  "name": "lilengine",
+  "version": "0.0.1",
+  "description": "Unity like engine in the browser",
+  "main": " ",
+  "dependencies": {
+    "foundation-sites": "^6.3.0",
+    "gl-matrix": "^2.3.2",
+    "jquery": "^3.2.1",
+    "jquery-ui": "^1.12.1",
+    "webgl-obj-loader": "^0.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.1.3",
+    "eslint-plugin-import": "^2.2.0",
+    "http-server": "^0.9.0",
+    "pre-commit": "^1.2.2",
+    "protractor": "^5.1.1",
+    "webpack": "^2.2.0"
+  },
+  "scripts": {
+    "start": "http-server & webpack --progress --colors --watch",
+    "server": "http-server",
+    "test": "./tests/launch_tests.sh",
+    "lint": "eslint ./ --ignore-pattern dist/",
+    "pack": "webpack",
+    "watch": "webpack --progress --colors --watch"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ice-blaze/lilengine.git"
+  },
+  "author": "Ice-Blaze",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ice-blaze/lilengine/issues"
+  },
+  "homepage": "https://github.com/ice-blaze/lilengine#readme"
 }
