@@ -8,6 +8,7 @@
     "gl-matrix": "^2.3.2",
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
+    "jquery-ui-dist": "^1.12.1",
     "webgl-obj-loader": "^0.1.1"
   },
   "devDependencies": {

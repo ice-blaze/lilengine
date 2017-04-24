@@ -1,4 +1,5 @@
 import $ from "jquery"
+import "jquery-ui"
 import GLB from "./main"
 
 const view = {
