@@ -4,6 +4,8 @@ import {
 	shaderVertexSource,
 	skyboxFsSource,
 	skyboxVsSource,
+	chromaticAberrationFsSource,
+	chromaticAberrationVsSource,
 } from "../shaders/shaders"
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
@@ -77,31 +79,39 @@ function main() {
 		return shader
 	}
 
-	// function createFramebuffer(width, height) {
-	//     // Framebuffer part
-	//     const buffer = GL.createFramebuffer()
-	//     GL.bindFramebuffer(GL.FRAMEBUFFER, buffer)
-	//     buffer.width = width
-	//     buffer.height = height
-	//     const texture = GL.createTexture()
-	//     GL.bindTexture(GL.TEXTURE_2D, texture)
-	//     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-	//     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
-	//     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
-	//     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
-	//     GL.texImage2D(
-	//         GL.TEXTURE_2D, 0, GL.RGBA, buffer.width, buffer.height, 0, GL.RGBA, GL.UNSIGNED_BYTE,
-	//         null,
-	//     )
-	//     GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
-	//     GL.bindTexture(GL.TEXTURE_2D, null)
-	//     GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+	function createFramebuffer(width, height) {
+		// Framebuffer part
+		const buffer = GL.createFramebuffer()
+		GL.bindFramebuffer(GL.FRAMEBUFFER, buffer)
+		buffer.width = width
+		buffer.height = height
+		const texture = GL.createTexture()
+		GL.bindTexture(GL.TEXTURE_2D, texture)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+		GL.texImage2D(
+			GL.TEXTURE_2D, 0, GL.RGBA, buffer.width, buffer.height, 0, GL.RGBA, GL.UNSIGNED_BYTE,
+			null,
+		)
+		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
 
-	//     return {
-	//         buffer,
-	//         texture,
-	//     }
-	// }
+		const render = GL.createRenderbuffer()
+		GL.bindRenderbuffer(GL.RENDERBUFFER, render)
+		GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT16, width, height)
+		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0)
+		GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, render)
+
+		GL.bindTexture(GL.TEXTURE_2D, null)
+		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+		GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+		return {
+			buffer,
+			texture,
+			render,
+		}
+	}
 
 	elements.forEach((cube) => {
 		cube.initBuffers()
@@ -125,7 +135,27 @@ function main() {
 	GL.attachShader(SKYBOX_PROGRAM, skyboxFs)
 	GL.linkProgram(SKYBOX_PROGRAM)
 
-	// const bufftex = createFramebuffer(CANVAS.width, CANVAS.height)
+	const chromaticVs = getShader(chromaticAberrationVsSource, GL.VERTEX_SHADER, "CHROMATIC VERTEX")
+	const chromaticFs = getShader(chromaticAberrationFsSource, GL.FRAGMENT_SHADER, "CHROMATIC FRAGMENT")
+	const CHROMATIC_PROGRAM = GL.createProgram()
+	GL.attachShader(CHROMATIC_PROGRAM, chromaticVs)
+	GL.attachShader(CHROMATIC_PROGRAM, chromaticFs)
+	GL.linkProgram(CHROMATIC_PROGRAM)
+
+	const vertexBuffer = GL.createBuffer()
+	const indexBuffer = GL.createBuffer()
+	const chromaritcCoordIn = GL.getAttribLocation(CHROMATIC_PROGRAM, "coordinate")
+	const classicSquare = [
+		-1, -1, 0,
+		1, -1, 0,
+		1, 1, 0,
+		-1, -1, 0,
+		-1, 1, 0,
+		1, 1, 0,
+	]
+	const classicSquareIndices = [0, 1, 2, 3, 4, 5]
+
+	const bufftex = createFramebuffer(CANVAS.width, CANVAS.height)
 
 	// MVP Matrix
 	const pMatrix = mat4.create()
@@ -166,6 +196,10 @@ function main() {
 		timeOld = time
 
 		GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
+
+		GL.bindFramebuffer(GL.FRAMEBUFFER, bufftex.buffer)
+		GL.bindRenderbuffer(GL.RENDERBUFFER, bufftex.render)
+
 		GL.clear(GL.COLOR_BUFFER_BIT + GL.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawMandlebox() {
@@ -200,9 +234,6 @@ function main() {
 			GL.flush()
 		}
 
-		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
-
-		drawMandlebox()
 
 		function drawSkybox() {
 			GL.useProgram(SKYBOX_PROGRAM)
@@ -215,6 +246,38 @@ function main() {
 			skybox.draw()
 		}
 		drawSkybox()
+		drawMandlebox()
+
+		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+		GL.bindRenderbuffer(GL.RENDERBUFFER, null)
+
+		// TODO chromatic part could be in a class
+		// TODO add the texture and two triangles to fit the complete screen
+		GL.useProgram(CHROMATIC_PROGRAM)
+
+		GL.activeTexture(GL.TEXTURE0)
+		GL.bindTexture(GL.TEXTURE_2D, bufftex.texture)
+		GL.uniform1i(GL.getUniformLocation(CHROMATIC_PROGRAM, "samplerIn"), 0)
+
+		screenSizeIn = GL.getUniformLocation(CHROMATIC_PROGRAM, "screenSizeIn")
+		GL.uniform2f(screenSizeIn, CANVAS.width, CANVAS.height)
+
+		// const vertexBuffer = GL.createBuffer()
+		GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer)
+		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(classicSquare), GL.STATIC_DRAW)
+
+		// const chromaritcCoordIn = GL.getAttribLocation(CHROMATIC_PROGRAM, "coordinate")
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, indexBuffer)
+		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(classicSquareIndices), GL.STATIC_DRAW)
+
+		// const chromaritcCoordIn = GL.getAttribLocation(CHROMATIC_PROGRAM, "coordinate")
+		GL.enableVertexAttribArray(chromaritcCoordIn)
+		GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer)
+		GL.vertexAttribPointer(chromaritcCoordIn, 3, GL.FLOAT, false, 0, 0)
+
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, indexBuffer)
+
+		GL.drawElements(GL.TRIANGLES, classicSquareIndices.length, GL.UNSIGNED_SHORT, 0)
 
 		GLB.firstLoop += 1
 	}
