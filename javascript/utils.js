@@ -14,7 +14,7 @@ export function loadTextFile(url) {
 }
 
 // Compile shaders and if not send an error
-export function getShader(GL, source, type, typeString) {
+function getShader(GL, source, type, typeString) {
 	if (GL.VERTEX_SHADER !== type && GL.FRAGMENT_SHADER !== type) {
 		console.err("Only manage fragment or vertex shader !!")
 		return undefined
@@ -29,8 +29,14 @@ export function getShader(GL, source, type, typeString) {
 	return shader
 }
 
-export function getShaders(GL, shader) {
-	const vs = getShader(GL, shader.vsSource, GL.VERTEX_SHADER, `${shader.name} VERTEX`)
-	const fs = getShader(GL, shader.fsSource, GL.FRAGMENT_SHADER, `${shader.name} FRAGMENT`)
-	return { vs, fs }
+// Create program
+export function createProgram(GL, shaders) {
+	const vs = getShader(GL, shaders.vsSource, GL.VERTEX_SHADER, `${shaders.name} vertex`)
+	const fs = getShader(GL, shaders.fsSource, GL.FRAGMENT_SHADER, `${shaders.name} fragment`)
+	const program = GL.createProgram()
+	GL.attachShader(program, vs)
+	GL.attachShader(program, fs)
+	GL.linkProgram(program)
+
+	return program
 }

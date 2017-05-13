@@ -2,15 +2,11 @@ import { vec3, mat4 } from "gl-matrix"
 import {
 	shaderSource,
 	skyboxSource,
-	// shaderFragmentSource,
-	// shaderVertexSource,
-	// skyboxFsSource,
-	// skyboxVsSource,
 } from "../shaders/shaders"
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
-import { getShader } from "./utils"
+import { createProgram } from "./utils"
 import ChromaticAberration from "./chromatic_aberration"
 
 // GLOBALS
@@ -22,11 +18,7 @@ const GLB = {
 	selectedGameObject: null,
 }
 export default GLB
-// export let canvasPlay = true
-// export let animate = undefined
-// export let firstLoop = 0
-// export const gameObjectHierarchy = []
-// export let selectedGameObject = null
+
 const elements = []
 
 function main() {
@@ -111,21 +103,9 @@ function main() {
 	skybox.initBuffers()
 
 	// TODO acreate an object shader and link it to the GameObject
-	// Link the vertex and fragment shader
-	const shaderVertex = getShader(GL, shaderSource.vsSource, GL.VERTEX_SHADER, `${shaderSource.name} VERTEX`)
-	const shaderFragment = getShader(GL, shaderSource.fsSource, GL.FRAGMENT_SHADER, `${shaderSource.name} FRAGMENT`)
-	const MANDELBOX_PROGRAM = GL.createProgram()
-	GL.attachShader(MANDELBOX_PROGRAM, shaderVertex)
-	GL.attachShader(MANDELBOX_PROGRAM, shaderFragment)
-	GL.linkProgram(MANDELBOX_PROGRAM)
+	const CUBES_PROGRAM = createProgram(GL, shaderSource)
 	// TODO put it in the skybox part
-	// skybox shader
-	const skyboxVs = getShader(GL, skyboxSource.vsSource, GL.VERTEX_SHADER, `${shaderSource.name} VERTEX`)
-	const skyboxFs = getShader(GL, skyboxSource.fsSource, GL.FRAGMENT_SHADER, `${shaderSource.name} FRAGMENT`)
-	const SKYBOX_PROGRAM = GL.createProgram()
-	GL.attachShader(SKYBOX_PROGRAM, skyboxVs)
-	GL.attachShader(SKYBOX_PROGRAM, skyboxFs)
-	GL.linkProgram(SKYBOX_PROGRAM)
+	const SKYBOX_PROGRAM = createProgram(GL, skyboxSource)
 
 	const chromatic = new ChromaticAberration(GL)
 
@@ -177,19 +157,19 @@ function main() {
 		GL.clear(GL.COLOR_BUFFER_BIT + GL.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawMandlebox() {
-			GL.useProgram(MANDELBOX_PROGRAM)
+			GL.useProgram(CUBES_PROGRAM)
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
-			screenSizeIn = GL.getUniformLocation(MANDELBOX_PROGRAM, "screenSizeIn")
+			screenSizeIn = GL.getUniformLocation(CUBES_PROGRAM, "screenSizeIn")
 			GL.uniform2f(screenSizeIn, CANVAS.width, CANVAS.height)
-			globalLightIn = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalLightIn")
+			globalLightIn = GL.getUniformLocation(CUBES_PROGRAM, "globalLightIn")
 			GL.uniform3fv(globalLightIn, globalLight)
-			globalTime = GL.getUniformLocation(MANDELBOX_PROGRAM, "globalTimeIn")
+			globalTime = GL.getUniformLocation(CUBES_PROGRAM, "globalTimeIn")
 			GL.uniform1f(globalTime, time / 1000)
-			pMatrixIn = GL.getUniformLocation(MANDELBOX_PROGRAM, "pMatrix")
+			pMatrixIn = GL.getUniformLocation(CUBES_PROGRAM, "pMatrix")
 			GL.uniformMatrix4fv(pMatrixIn, false, pMatrix)
 
 			elements.forEach((gameObject) => {
-				gameObject.setShaderProgram(MANDELBOX_PROGRAM)
+				gameObject.setShaderProgram(CUBES_PROGRAM)
 			})
 
 			GLB.gameObjectHierarchy.forEach((parent) => {
