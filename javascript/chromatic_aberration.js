@@ -1,7 +1,7 @@
 import {
 	chromaticSource,
 } from "../shaders/shaders"
-import { createProgram } from "./utils"
+import { createProgram, getValue } from "./utils"
 
 class Quad {
 	constructor() {
@@ -37,7 +37,7 @@ export default class ChromaticAberration extends Quad {
 		this.screenSizeIn = GL.getUniformLocation(this.program, "screenSizeIn")
 	}
 
-	draw(time, width, height, texture) {
+	draw(time, width, height, texture, document) {
 		const GL = this.GL
 
 		GL.useProgram(this.program)
@@ -48,9 +48,16 @@ export default class ChromaticAberration extends Quad {
 
 		GL.uniform2f(this.screenSizeIn, width, height)
 
-		GL.uniform2f(this.rOffset, Math.sin(0.01 * time) * 4.0, 0.0)
-		GL.uniform2f(this.gOffset, 0.0, 0.0)
-		GL.uniform2f(this.bOffset, Math.cos(0.01 * time) * -4.0, 0.0)
+		const rHori = getValue(document, "r_horizontal")
+		const rVert = getValue(document, "r_vertical")
+		const gHori = getValue(document, "g_horizontal")
+		const gVert = getValue(document, "g_vertical")
+		const bHori = getValue(document, "b_horizontal")
+		const bVert = getValue(document, "b_vertical")
+		// GL.uniform2f(this.rOffset, Math.sin(0.01 * time) * rHori, rVerti)
+		GL.uniform2f(this.rOffset, rHori, rVert)
+		GL.uniform2f(this.gOffset, gHori, gVert)
+		GL.uniform2f(this.bOffset, bHori, bVert)
 
 		// const vertexBuffer = GL.createBuffer()
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertexBuffer)

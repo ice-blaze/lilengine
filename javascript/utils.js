@@ -40,3 +40,8 @@ export function createProgram(GL, shaders) {
 
 	return program
 }
+
+// return value of an element with an id
+export function getValue(document, id) {
+	return document.getElementById(id).value
+}

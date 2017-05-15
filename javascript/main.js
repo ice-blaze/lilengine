@@ -205,7 +205,7 @@ function main() {
 		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
 		GL.bindRenderbuffer(GL.RENDERBUFFER, null)
 
-		chromatic.draw(time, CANVAS.width, CANVAS.height, bufftex.texture)
+		chromatic.draw(time, CANVAS.width, CANVAS.height, bufftex.texture, document)
 
 		GLB.firstLoop += 1
 	}
