@@ -60,4 +60,3 @@ export default function initCanvasButton() {
 	document.addEventListener("mozfullscreenchange", onFullScreenChange)
 	document.addEventListener("MSFullscreenChange", onFullScreenChange)
 }
-

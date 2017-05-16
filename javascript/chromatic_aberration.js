@@ -48,16 +48,20 @@ export default class ChromaticAberration extends Quad {
 
 		GL.uniform2f(this.screenSizeIn, width, height)
 
+
 		const rHori = getValue(document, "r_horizontal")
 		const rVert = getValue(document, "r_vertical")
+		const rSpeed = getValue(document, "r_speed")
 		const gHori = getValue(document, "g_horizontal")
 		const gVert = getValue(document, "g_vertical")
+		const gSpeed = getValue(document, "g_speed")
 		const bHori = getValue(document, "b_horizontal")
 		const bVert = getValue(document, "b_vertical")
+		const bSpeed = getValue(document, "b_speed")
 		// GL.uniform2f(this.rOffset, Math.sin(0.01 * time) * rHori, rVerti)
-		GL.uniform2f(this.rOffset, rHori, rVert)
-		GL.uniform2f(this.gOffset, gHori, gVert)
-		GL.uniform2f(this.bOffset, bHori, bVert)
+		GL.uniform2f(this.rOffset, rHori * Math.sin(time * rSpeed), rVert * Math.sin(time * rSpeed))
+		GL.uniform2f(this.gOffset, gHori * Math.sin(time * gSpeed), gVert * Math.sin(time * gSpeed))
+		GL.uniform2f(this.bOffset, bHori * Math.sin(time * bSpeed), bVert * Math.sin(time * bSpeed))
 
 		// const vertexBuffer = GL.createBuffer()
 		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertexBuffer)

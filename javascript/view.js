@@ -71,3 +71,45 @@ $(document).ready(() => {
 $(document).ready(() => {
 	setInterval(view.updateInspector, 1000)
 })
+
+$("#general_speed").on("input", () => {
+	const val = $("#general_speed").val()
+
+	$("#r_speed").val(val)
+	$("#g_speed").val(val)
+	$("#b_speed").val(val)
+})
+
+// Top menu hiding showing PART
+
+function hideMenus(menus) {
+	menus.forEach((menu) => {
+		$(menu).hide()
+	})
+}
+
+function openMenu(menuId, menus) {
+	hideMenus(menus)
+	$(menuId).show()
+}
+
+function extractDict(dictArray, key) {
+	return dictArray.map(dict => dict[key])
+}
+
+const topMenuButtons = [
+	{ menu: "#depthMenu", button: "#depthButton" },
+	{ menu: "#chromaticMenu", button: "#chromaticButton" },
+	{ menu: "#3dMeshesMenu", button: "#3dMeshesButton" },
+]
+
+hideMenus(extractDict(topMenuButtons, "menu"))
+
+$(document).ready(() => {
+	topMenuButtons.forEach((butMen) => {
+		$(butMen.button).click(() => {
+			console.log("coucou")
+			openMenu(butMen.menu, extractDict(topMenuButtons, "menu"))
+		})
+	})
+})

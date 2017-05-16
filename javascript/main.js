@@ -195,7 +195,7 @@ function main() {
 
 			pMatrixIn = GL.getUniformLocation(SKYBOX_PROGRAM, "pMatrix")
 			GL.uniformMatrix4fv(pMatrixIn, false, pSkyboxMatrix)
-			skybox.rotate[1] = 4 * Math.sin(time / 1000)
+			// skybox.rotate[1] = 4 * Math.sin(time / 1000)
 
 			skybox.draw()
 		}
