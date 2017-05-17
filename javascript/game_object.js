@@ -17,10 +17,10 @@ export default class GameObject {
 		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
-		this.GL = null
+		this.gl = null
 	}
 
-	static create(GL, path, name = "name") {
+	static create(gl, path, name = "name") {
 		const object = new GameObject()
 		const file = loadTextFile(path)
 		const objMesh = new OBJ.Mesh(file)
@@ -32,22 +32,22 @@ export default class GameObject {
 		object.indices = objMesh.indices
 		object.normals = objMesh.vertexNormals
 
-		object.GL = GL
+		object.gl = gl
 
 		return object
 	}
 
 	initBuffers() {
-		const GL = this.GL
-		this.verticesBuffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.verticesBuffer)
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.vertices), GL.STATIC_DRAW)
-		this.normals_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer)
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.normals), GL.STATIC_DRAW)
-		this.indicesBuffer = GL.createBuffer()
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), GL.STATIC_DRAW)
+		const gl = this.gl
+		this.verticesBuffer = gl.createBuffer()
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW)
+		this.normals_buffer = gl.createBuffer()
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normals_buffer)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW)
+		this.indicesBuffer = gl.createBuffer()
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW)
 	}
 
 	modelMatrix() {
@@ -127,26 +127,26 @@ export default class GameObject {
 	}
 
 	draw() {
-		const GL = this.GL
+		const gl = this.gl
 
 		const mvMatrix = this.modelMatrix()
 		const normalMatrix = mat4.create()
 		mat4.invert(normalMatrix, mvMatrix)
 		mat4.transpose(normalMatrix, normalMatrix)
-		this.normal_matrix_in = GL.getUniformLocation(this.program, "normalMatrix")
-		GL.uniformMatrix4fv(this.normal_matrix_in, false, normalMatrix)
-		this.mvMatrixIn = GL.getUniformLocation(this.program, "mvMatrix")
-		GL.uniformMatrix4fv(this.mvMatrixIn, false, mvMatrix)
-		this.normalIn = GL.getAttribLocation(this.program, "normal")
-		GL.enableVertexAttribArray(this.normalIn)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer)
-		GL.vertexAttribPointer(this.normalIn, 3, GL.FLOAT, false, 0, 0)
-		this.coordIn = GL.getAttribLocation(this.program, "coordinate")
-		GL.enableVertexAttribArray(this.coordIn)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.verticesBuffer)
-		GL.vertexAttribPointer(this.coordIn, 3, GL.FLOAT, false, 0, 0)
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
+		this.normal_matrix_in = gl.getUniformLocation(this.program, "normalMatrix")
+		gl.uniformMatrix4fv(this.normal_matrix_in, false, normalMatrix)
+		this.mvMatrixIn = gl.getUniformLocation(this.program, "mvMatrix")
+		gl.uniformMatrix4fv(this.mvMatrixIn, false, mvMatrix)
+		this.normalIn = gl.getAttribLocation(this.program, "normal")
+		gl.enableVertexAttribArray(this.normalIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normals_buffer)
+		gl.vertexAttribPointer(this.normalIn, 3, gl.FLOAT, false, 0, 0)
+		this.coordIn = gl.getAttribLocation(this.program, "coordinate")
+		gl.enableVertexAttribArray(this.coordIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+		gl.vertexAttribPointer(this.coordIn, 3, gl.FLOAT, false, 0, 0)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
 
-		GL.drawElements(GL.TRIANGLES, this.indices.length, GL.UNSIGNED_SHORT, 0)
+		gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0)
 	}
 }

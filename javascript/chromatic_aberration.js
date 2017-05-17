@@ -18,35 +18,35 @@ class Quad {
 }
 
 export default class ChromaticAberration extends Quad {
-	constructor(GL/* , shaderProgram*/) {
+	constructor(gl/* , shaderProgram*/) {
 		super()
 
-		this.GL = GL
+		this.gl = gl
 		// this.program = shaderProgram
 
-		this.program = createProgram(GL, chromaticSource)
+		this.program = createProgram(gl, chromaticSource)
 
-		this.vertexBuffer = GL.createBuffer()
-		this.indexBuffer = GL.createBuffer()
-		this.coordIn = GL.getAttribLocation(this.program, "coordinate")
+		this.vertexBuffer = gl.createBuffer()
+		this.indexBuffer = gl.createBuffer()
+		this.coordIn = gl.getAttribLocation(this.program, "coordinate")
 
-		this.rOffset = GL.getUniformLocation(this.program, "urOffset")
-		this.gOffset = GL.getUniformLocation(this.program, "ugOffset")
-		this.bOffset = GL.getUniformLocation(this.program, "ubOffset")
+		this.rOffset = gl.getUniformLocation(this.program, "urOffset")
+		this.gOffset = gl.getUniformLocation(this.program, "ugOffset")
+		this.bOffset = gl.getUniformLocation(this.program, "ubOffset")
 
-		this.screenSizeIn = GL.getUniformLocation(this.program, "screenSizeIn")
+		this.screenSizeIn = gl.getUniformLocation(this.program, "screenSizeIn")
 	}
 
 	draw(time, width, height, texture, document) {
-		const GL = this.GL
+		const gl = this.gl
 
-		GL.useProgram(this.program)
+		gl.useProgram(this.program)
 
-		GL.activeTexture(GL.TEXTURE0)
-		GL.bindTexture(GL.TEXTURE_2D, texture)
-		GL.uniform1i(GL.getUniformLocation(this.program, "samplerIn"), 0)
+		gl.activeTexture(gl.TEXTURE0)
+		gl.bindTexture(gl.TEXTURE_2D, texture)
+		gl.uniform1i(gl.getUniformLocation(this.program, "samplerIn"), 0)
 
-		GL.uniform2f(this.screenSizeIn, width, height)
+		gl.uniform2f(this.screenSizeIn, width, height)
 
 
 		const rHori = getValue(document, "r_horizontal")
@@ -58,24 +58,24 @@ export default class ChromaticAberration extends Quad {
 		const bHori = getValue(document, "b_horizontal")
 		const bVert = getValue(document, "b_vertical")
 		const bSpeed = getValue(document, "b_speed")
-		// GL.uniform2f(this.rOffset, Math.sin(0.01 * time) * rHori, rVerti)
-		GL.uniform2f(this.rOffset, rHori * Math.sin(time * rSpeed), rVert * Math.sin(time * rSpeed))
-		GL.uniform2f(this.gOffset, gHori * Math.sin(time * gSpeed), gVert * Math.sin(time * gSpeed))
-		GL.uniform2f(this.bOffset, bHori * Math.sin(time * bSpeed), bVert * Math.sin(time * bSpeed))
+		// gl.uniform2f(this.rOffset, Math.sin(0.01 * time) * rHori, rVerti)
+		gl.uniform2f(this.rOffset, rHori * Math.sin(time * rSpeed), rVert * Math.sin(time * rSpeed))
+		gl.uniform2f(this.gOffset, gHori * Math.sin(time * gSpeed), gVert * Math.sin(time * gSpeed))
+		gl.uniform2f(this.bOffset, bHori * Math.sin(time * bSpeed), bVert * Math.sin(time * bSpeed))
 
-		// const vertexBuffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertexBuffer)
-		GL.bufferData(GL.ARRAY_BUFFER, this.vertices, GL.STATIC_DRAW)
+		// const vertexBuffer = gl.createBuffer()
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
+		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW)
 
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indexBuffer)
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, this.indices, GL.STATIC_DRAW)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer)
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW)
 
-		GL.enableVertexAttribArray(this.coordIn)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertexBuffer)
-		GL.vertexAttribPointer(this.coordIn, 3, GL.FLOAT, false, 0, 0)
+		gl.enableVertexAttribArray(this.coordIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
+		gl.vertexAttribPointer(this.coordIn, 3, gl.FLOAT, false, 0, 0)
 
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indexBuffer)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer)
 
-		GL.drawElements(GL.TRIANGLES, this.indices.length, GL.UNSIGNED_SHORT, 0)
+		gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0)
 	}
 }
