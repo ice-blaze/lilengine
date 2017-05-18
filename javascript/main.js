@@ -27,7 +27,7 @@ function getGl(canvas) {
 			antialias: true,
 		})
 	} catch (e) {
-		alert("You are not webgl compatible :(")
+		alert("You are not webgl compatible :(") // eslint-disable-line no-alert
 		return undefined
 	}
 }
