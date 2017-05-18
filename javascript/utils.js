@@ -45,3 +45,8 @@ export function createProgram(gl, shaders) {
 export function getValue(document, id) {
 	return document.getElementById(id).value
 }
+
+// return a list of indices from 0 to n
+export function range(n) {
+	return [...Array(n)].map((_, i) => i)
+}

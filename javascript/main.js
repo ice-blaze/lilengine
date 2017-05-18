@@ -6,7 +6,7 @@ import {
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
-import { createProgram } from "./utils"
+import { createProgram, range } from "./utils"
 import ChromaticAberration from "./chromatic_aberration"
 
 // GLOBALS
@@ -34,7 +34,7 @@ function getGl(canvas) {
 
 function main() {
 	const canvas = document.getElementById("demoCanvas")
-	const COUNTER = document.getElementById("counter")
+	const counter = document.getElementById("counter")
 	canvas.width = 320
 	canvas.height = 240
 
@@ -44,7 +44,7 @@ function main() {
 	gl.depthFunc(gl.LESS)
 
 	const MAX_OBJ = 4
-	for (let i = 0; i < MAX_OBJ; i += 1) {
+	range(MAX_OBJ).forEach((i) => {
 		const cube1 = GameObject.create(gl, "./models/cube.obj", `obja${i}`)
 		// const cube2 = GameObject.create(gl, "./models/cube.obj", "objb" + i)
 		const cube2 = GameObject.create(gl, "./models/bunny.obj", `objb${i}`)
@@ -60,7 +60,7 @@ function main() {
 			(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5),
 		])
 		cube2.position.set([-2.0, 0.0, -0.0])
-	}
+	})
 
 	const skybox = SkyBox.create(gl, "skybox")
 	skybox.scale.set([100000, 100000, 100000])
@@ -137,7 +137,7 @@ function main() {
 	GLB.animate = (time) => {
 		window.requestAnimationFrame(GLB.animate)
 		if (!GLB.canvasPlay && GLB.firstLoop > 1) { // need to do two times the loop for an image
-			COUNTER.innerHTML = 0
+			counter.innerHTML = 0
 			return
 		}
 
@@ -146,7 +146,7 @@ function main() {
 		const floorTime = Math.floor(time / 1000)
 		if (lastMean < floorTime) {
 			const mean = counterList.reduce((a, b) => a + b, 0) / counterList.length
-			COUNTER.innerHTML = Math.round(mean * 100) / 100
+			counter.innerHTML = Math.round(mean * 100) / 100
 			lastMean = floorTime
 			counterList.length = 0
 		}
