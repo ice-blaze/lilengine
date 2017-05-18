@@ -1,7 +1,6 @@
 import { vec3, mat4 } from "gl-matrix"
 import {
 	shaderSource,
-	skyboxSource,
 } from "../shaders/shaders"
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
@@ -62,9 +61,8 @@ function main() {
 		cube2.position.set([-2.0, 0.0, -0.0])
 	})
 
-	const skybox = SkyBox.create(gl, "skybox")
+	const skybox = new SkyBox(gl, "skybox", canvas)
 	skybox.scale.set([100000, 100000, 100000])
-
 
 	function createFramebuffer(width, height) {
 		// Framebuffer part
@@ -103,12 +101,9 @@ function main() {
 	elements.forEach((cube) => {
 		cube.initBuffers()
 	})
-	skybox.initBuffers()
 
 	// TODO acreate an object shader and link it to the GameObject
 	const CUBES_PROGRAM = createProgram(gl, shaderSource)
-	// TODO put it in the skybox part
-	const SKYBOX_PROGRAM = createProgram(gl, skyboxSource)
 
 	const chromatic = new ChromaticAberration(gl)
 
@@ -117,18 +112,15 @@ function main() {
 	// MVP Matrix
 	const pMatrix = mat4.create()
 	mat4.perspective(pMatrix, 80, canvas.width / canvas.height, 0.1, 100.0)
-	// TODO put it in the skybox object
-	const pSkyboxMatrix = mat4.create()
-	mat4.perspective(pSkyboxMatrix, 80, canvas.width / canvas.height, 0.1, 1000000.0)
 
 	// global lightning
 	const globalLight = vec3.fromValues(1, -1, 1)
 	vec3.normalize(globalLight, globalLight)
 
-	let screenSizeIn
-	let globalTime
-	let pMatrixIn
-	let globalLightIn
+	const screenSizeIn = gl.getUniformLocation(CUBES_PROGRAM, "screenSizeIn")
+	const globalTime = gl.getUniformLocation(CUBES_PROGRAM, "globalTimeIn")
+	const pMatrixIn = gl.getUniformLocation(CUBES_PROGRAM, "pMatrix")
+	const globalLightIn = gl.getUniformLocation(CUBES_PROGRAM, "globalLightIn")
 
 	let timeOld = 0
 	const counterList = []
@@ -159,16 +151,12 @@ function main() {
 
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
-		function drawMandlebox() {
+		function drawCubes() {
 			gl.useProgram(CUBES_PROGRAM)
 			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
-			screenSizeIn = gl.getUniformLocation(CUBES_PROGRAM, "screenSizeIn")
 			gl.uniform2f(screenSizeIn, canvas.width, canvas.height)
-			globalLightIn = gl.getUniformLocation(CUBES_PROGRAM, "globalLightIn")
 			gl.uniform3fv(globalLightIn, globalLight)
-			globalTime = gl.getUniformLocation(CUBES_PROGRAM, "globalTimeIn")
 			gl.uniform1f(globalTime, time / 1000)
-			pMatrixIn = gl.getUniformLocation(CUBES_PROGRAM, "pMatrix")
 			gl.uniformMatrix4fv(pMatrixIn, false, pMatrix)
 
 			elements.forEach((gameObject) => {
@@ -191,19 +179,8 @@ function main() {
 			gl.flush()
 		}
 
-
-		function drawSkybox() {
-			gl.useProgram(SKYBOX_PROGRAM)
-			skybox.setShaderProgram(SKYBOX_PROGRAM)
-
-			pMatrixIn = gl.getUniformLocation(SKYBOX_PROGRAM, "pMatrix")
-			gl.uniformMatrix4fv(pMatrixIn, false, pSkyboxMatrix)
-			// skybox.rotate[1] = 4 * Math.sin(time / 1000)
-
-			skybox.draw()
-		}
-		drawMandlebox()
-		drawSkybox()
+		drawCubes()
+		skybox.draw()
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.bindRenderbuffer(gl.RENDERBUFFER, null)
