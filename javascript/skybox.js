@@ -42,9 +42,6 @@ export default class SkyBox {
 		this.image.src = "./skyboxes/default.png"
 
 		this.program = createProgram(gl, skyboxSource)
-		console.log(skyboxSource)
-		console.log(gl)
-		console.log(this.program)
 		this.pMatrixInSkybox = gl.getUniformLocation(this.program, "pMatrix")
 		this.pSkyboxMatrix = mat4.create()
 		mat4.perspective(this.pSkyboxMatrix, 80, canvas.width / canvas.height, 0.1, 1000000.0)

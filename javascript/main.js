@@ -1,11 +1,7 @@
-import { vec3, mat4 } from "gl-matrix"
-import {
-	shaderSource,
-} from "../shaders/shaders"
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
-import { createProgram, range } from "./utils"
+import { range } from "./utils"
 import ChromaticAberration from "./chromatic_aberration"
 
 // GLOBALS
@@ -44,9 +40,9 @@ function main() {
 
 	const MAX_OBJ = 4
 	range(MAX_OBJ).forEach((i) => {
-		const cube1 = GameObject.create(gl, "./models/cube.obj", `obja${i}`)
+		const cube1 = new GameObject(gl, "./models/cube.obj", `obja${i}`, canvas)
 		// const cube2 = GameObject.create(gl, "./models/cube.obj", "objb" + i)
-		const cube2 = GameObject.create(gl, "./models/bunny.obj", `objb${i}`)
+		const cube2 = new GameObject(gl, "./models/bunny.obj", `objb${i}`, canvas)
 		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.setChild(cube2)
 
@@ -98,29 +94,9 @@ function main() {
 		}
 	}
 
-	elements.forEach((cube) => {
-		cube.initBuffers()
-	})
-
-	// TODO acreate an object shader and link it to the GameObject
-	const CUBES_PROGRAM = createProgram(gl, shaderSource)
-
 	const chromatic = new ChromaticAberration(gl)
 
 	const bufftex = createFramebuffer(canvas.width, canvas.height)
-
-	// MVP Matrix
-	const pMatrix = mat4.create()
-	mat4.perspective(pMatrix, 80, canvas.width / canvas.height, 0.1, 100.0)
-
-	// global lightning
-	const globalLight = vec3.fromValues(1, -1, 1)
-	vec3.normalize(globalLight, globalLight)
-
-	const screenSizeIn = gl.getUniformLocation(CUBES_PROGRAM, "screenSizeIn")
-	const globalTime = gl.getUniformLocation(CUBES_PROGRAM, "globalTimeIn")
-	const pMatrixIn = gl.getUniformLocation(CUBES_PROGRAM, "pMatrix")
-	const globalLightIn = gl.getUniformLocation(CUBES_PROGRAM, "globalLightIn")
 
 	let timeOld = 0
 	const counterList = []
@@ -152,17 +128,6 @@ function main() {
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawCubes() {
-			gl.useProgram(CUBES_PROGRAM)
-			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
-			gl.uniform2f(screenSizeIn, canvas.width, canvas.height)
-			gl.uniform3fv(globalLightIn, globalLight)
-			gl.uniform1f(globalTime, time / 1000)
-			gl.uniformMatrix4fv(pMatrixIn, false, pMatrix)
-
-			elements.forEach((gameObject) => {
-				gameObject.setShaderProgram(CUBES_PROGRAM)
-			})
-
 			GLB.gameObjectHierarchy.forEach((parent) => {
 				// position could shift because of floating precision errors
 				parent.position[0] += Math.sin(time / 1000) / 100
@@ -173,10 +138,8 @@ function main() {
 			})
 
 			elements.forEach((gameObject) => {
-				gameObject.draw()
+				gameObject.draw(canvas, time)
 			})
-
-			gl.flush()
 		}
 
 		drawCubes()
