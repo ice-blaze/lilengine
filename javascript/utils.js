@@ -5,14 +5,6 @@ export function removeArray(array, object) {
 	}
 }
 
-// Load synchronously the shaders. It's slower(0.5s) but code is more readable
-export function loadTextFile(url) {
-	const request = new XMLHttpRequest()
-	request.open("GET", url, false)
-	request.send()
-	return request.responseText
-}
-
 // Compile shaders and if not send an error
 function getShader(gl, source, type, typeString) {
 	if (gl.VERTEX_SHADER !== type && gl.FRAGMENT_SHADER !== type) {

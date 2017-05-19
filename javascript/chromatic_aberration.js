@@ -1,6 +1,4 @@
-import {
-	chromaticSource,
-} from "../shaders/shaders"
+import assets from "./assets"
 import { createProgram, getValue } from "./utils"
 
 class Quad {
@@ -24,7 +22,7 @@ export default class ChromaticAberration extends Quad {
 		this.gl = gl
 		// this.program = shaderProgram
 
-		this.program = createProgram(gl, chromaticSource)
+		this.program = createProgram(gl, assets.shaders.chromatic)
 
 		this.vertexBuffer = gl.createBuffer()
 		this.indexBuffer = gl.createBuffer()

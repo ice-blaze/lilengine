@@ -1,14 +1,12 @@
 import { vec3, mat4 } from "gl-matrix"
 import view from "./view"
-import { removeArray, loadTextFile, createProgram } from "./utils"
-import {
-	shaderSource,
-} from "../shaders/shaders"
+import { removeArray, createProgram } from "./utils"
+import assets from "./assets"
 
 const OBJ = require("webgl-obj-loader")  // import are not availble
 
 export default class GameObject {
-	constructor(gl, path, name = "name", canvas) {
+	constructor(gl, model, name = "name", canvas) {
 		this.name = name
 		this.children = []
 		this.parent = null
@@ -21,8 +19,7 @@ export default class GameObject {
 		this.normals_buffer = gl.createBuffer()
 		this.indicesBuffer = gl.createBuffer()
 
-		const file = loadTextFile(path)
-		const objMesh = new OBJ.Mesh(file)
+		const objMesh = new OBJ.Mesh(model)
 
 		this.vertices = new Float32Array(objMesh.vertices)
 		this.textures = objMesh.textures
@@ -31,7 +28,7 @@ export default class GameObject {
 
 		this.gl = gl
 
-		this.program = createProgram(gl, shaderSource)
+		this.program = createProgram(gl, assets.shaders.mainShader)
 
 		// MVP Matrix
 		this.pMatrix = mat4.create()

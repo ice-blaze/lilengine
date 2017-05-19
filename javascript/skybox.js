@@ -1,23 +1,17 @@
 import { vec3, mat4 } from "gl-matrix"
 // import { OBJ } from "webgl-obj-loader"
-import {
-	skyboxSource,
-} from "../shaders/shaders"
-import { loadTextFile, createProgram } from "./utils"
+import assets from "./assets"
+import { createProgram } from "./utils"
 
 const OBJ = require("webgl-obj-loader")
 
 export default class SkyBox {
 	constructor(gl, name = "GameObject", canvas) {
-		this.vertices = []
-		this.textures = [] // the texture UV
-		this.indices = []
 		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
-		this.gl = null
 
-		const file = loadTextFile("./skyboxes/skybox.obj")
+		const file = assets.models.skybox
 		const skyboxMesh = new OBJ.Mesh(file)
 
 		this.name = name
@@ -41,7 +35,7 @@ export default class SkyBox {
 		}
 		this.image.src = "./skyboxes/default.png"
 
-		this.program = createProgram(gl, skyboxSource)
+		this.program = createProgram(gl, assets.shaders.skybox)
 		this.pMatrixInSkybox = gl.getUniformLocation(this.program, "pMatrix")
 		this.pSkyboxMatrix = mat4.create()
 		mat4.perspective(this.pSkyboxMatrix, 80, canvas.width / canvas.height, 0.1, 1000000.0)

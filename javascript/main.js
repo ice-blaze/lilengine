@@ -3,6 +3,7 @@ import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
 import { range, createFramebuffer } from "./utils"
 import ChromaticAberration from "./chromatic_aberration"
+import assets from "./assets"
 
 // GLOBALS
 const GLB = {
@@ -27,7 +28,6 @@ function getGl(canvas) {
 	}
 }
 
-
 function main() {
 	const canvas = document.getElementById("demoCanvas")
 	const counter = document.getElementById("counter")
@@ -41,9 +41,9 @@ function main() {
 
 	const MAX_OBJ = 4
 	range(MAX_OBJ).forEach((i) => {
-		const cube1 = new GameObject(gl, "./models/cube.obj", `obja${i}`, canvas)
+		const cube1 = new GameObject(gl, assets.models.cube, `obja${i}`, canvas)
 		// const cube2 = GameObject.create(gl, "./models/cube.obj", "objb" + i)
-		const cube2 = new GameObject(gl, "./models/bunny.obj", `objb${i}`, canvas)
+		const cube2 = new GameObject(gl, assets.models.bunny, `objb${i}`, canvas)
 		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.setChild(cube2)
 
@@ -121,6 +121,12 @@ function main() {
 	}
 	return GLB.animate(0)
 }
-main()
+
+const assetsWait = setInterval(() => {
+	if (assets.ready) {
+		main()
+		clearInterval(assetsWait)
+	}
+}, 1)
 
 initCanvasButton()
