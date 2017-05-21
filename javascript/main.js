@@ -1,8 +1,9 @@
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
+// import ChromaticAberration from "./chromatic_aberration"
 import { range, createFramebuffer } from "./utils"
-import ChromaticAberration from "./chromatic_aberration"
+import DepthField from "./depth_field"
 import assets from "./assets"
 
 // GLOBALS
@@ -61,7 +62,8 @@ function main() {
 	const skybox = new SkyBox(gl, "skybox", canvas)
 	skybox.scale.set([100000, 100000, 100000])
 
-	const chromatic = new ChromaticAberration(gl)
+	// const chromatic = new ChromaticAberration(gl)
+	const depth = new DepthField(gl)
 
 	const bufftex = createFramebuffer(gl, canvas.width, canvas.height)
 
@@ -115,7 +117,8 @@ function main() {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.bindRenderbuffer(gl.RENDERBUFFER, null)
 
-		chromatic.draw(time, canvas.width, canvas.height, bufftex.texture, document)
+		depth.draw(canvas.width, canvas.height, bufftex.texture, document)
+		// chromatic.draw(time, canvas.width, canvas.height, bufftex.texture, document)
 
 		GLB.firstLoop += 1
 	}
