@@ -1,6 +1,7 @@
 precision highp float;
 
-uniform sampler2D samplerIn;
+uniform sampler2D colorTextureIn;
+uniform sampler2D depthTextureIn;
 uniform vec2 screenSizeIn;
 
 uniform float uNear;
@@ -15,16 +16,17 @@ void main(void) {
 
 	vec2 position = gl_FragCoord.xy / screenSizeIn;
 
-	vec4 test = texture2D(samplerIn, position);
-	vec3 c00 = texture2D(samplerIn, position + vec2(-1., -1.) * frac).xyz;
-	vec3 c01 = texture2D(samplerIn, position + vec2( 0., -1.) * frac).xyz;
-	vec3 c02 = texture2D(samplerIn, position + vec2( 1., -1.) * frac).xyz;
-	vec3 c10 = texture2D(samplerIn, position + vec2(-1.,  0.) * frac).xyz;
-	vec3 c11 = texture2D(samplerIn, position + vec2( 0.,  0.) * frac).xyz;
-	vec3 c12 = texture2D(samplerIn, position + vec2( 1.,  0.) * frac).xyz;
-	vec3 c20 = texture2D(samplerIn, position + vec2(-1.,  1.) * frac).xyz;
-	vec3 c21 = texture2D(samplerIn, position + vec2( 0.,  1.) * frac).xyz;
-	vec3 c22 = texture2D(samplerIn, position + vec2( 1.,  1.) * frac).xyz;
+	vec4 test = texture2D(depthTextureIn, position);
+	/* vec4 test = texture2D(colorTextureIn, position); */
+	vec3 c00 = texture2D(colorTextureIn, position + vec2(-1., -1.) * frac).xyz;
+	vec3 c01 = texture2D(colorTextureIn, position + vec2( 0., -1.) * frac).xyz;
+	vec3 c02 = texture2D(colorTextureIn, position + vec2( 1., -1.) * frac).xyz;
+	vec3 c10 = texture2D(colorTextureIn, position + vec2(-1.,  0.) * frac).xyz;
+	vec3 c11 = texture2D(colorTextureIn, position + vec2( 0.,  0.) * frac).xyz;
+	vec3 c12 = texture2D(colorTextureIn, position + vec2( 1.,  0.) * frac).xyz;
+	vec3 c20 = texture2D(colorTextureIn, position + vec2(-1.,  1.) * frac).xyz;
+	vec3 c21 = texture2D(colorTextureIn, position + vec2( 0.,  1.) * frac).xyz;
+	vec3 c22 = texture2D(colorTextureIn, position + vec2( 1.,  1.) * frac).xyz;
 	vec3 finalColor = vec3(0.0);
 	finalColor += c00 * k00;
 	finalColor += c01 * k01;
@@ -36,5 +38,5 @@ void main(void) {
 	finalColor += c21 * k21;
 	finalColor += c22 * k22;
 
-	gl_FragColor = vec4(finalColor, 1.0);
+	gl_FragColor = vec4(vec3(test.r), 1.0);
 }

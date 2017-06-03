@@ -37,8 +37,12 @@ function main() {
 
 	const gl = getGl(canvas)
 
-	gl.enable(gl.DEPTH_TEST)
-	gl.depthFunc(gl.LESS)
+	// gl.enable(gl.DEPTH_TEST)
+	// gl.depthFunc(gl.LESS)
+	const depthExt = gl.getExtension("WEBGL_depth_texture")
+	if (!depthExt) {
+		console.log("proute")
+	}
 
 	const MAX_OBJ = 4
 	range(MAX_OBJ).forEach((i) => {
@@ -78,6 +82,7 @@ function main() {
 			return
 		}
 
+		gl.enable(gl.DEPTH_TEST)
 		const dt = time - timeOld
 		counterList.push(dt)
 		const floorTime = Math.floor(time / 1000)
@@ -116,8 +121,9 @@ function main() {
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+		gl.disable(gl.DEPTH_TEST)
 
-		depth.draw(canvas.width, canvas.height, bufftex.texture, document)
+		depth.draw(canvas.width, canvas.height, bufftex.texture, bufftex.depth, document)
 		// chromatic.draw(time, canvas.width, canvas.height, bufftex.texture, document)
 
 		GLB.firstLoop += 1
