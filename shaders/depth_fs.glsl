@@ -4,20 +4,26 @@ uniform sampler2D colorTextureIn;
 uniform sampler2D depthTextureIn;
 uniform vec2 screenSizeIn;
 
+// TODO thoses variable are not used yet
 uniform float uNear;
 uniform float uFar;
 
 void main(void) {
 	vec2 frac = vec2(1.) / screenSizeIn;
 
-	float k00 = 0.1; float k01 = 0.1; float k02 = 0.1;
-	float k10 = 0.1; float k11 = 0.2; float k12 = 0.1;
-	float k20 = 0.1; float k21 = 0.1; float k22 = 0.1;
-
 	vec2 position = gl_FragCoord.xy / screenSizeIn;
 
-	vec4 test = texture2D(depthTextureIn, position);
-	/* vec4 test = texture2D(colorTextureIn, position); */
+	float depth = texture2D(depthTextureIn, position).x;
+	// TODO world near and world far
+	float n = 1.0;
+	float f = 2000.0;
+	float dist = (2.0 * n) / (f + n - depth * (f - n));
+
+	float k00 = mix(0.0, 0.1, dist); float k01 = mix(0.0, 0.1, dist); float k02 = mix(0.0, 0.1, dist);
+	float k10 = mix(0.0, 0.1, dist); float k11 = mix(1.0, 0.2, dist); float k12 = mix(0.0, 0.1, dist);
+	float k20 = mix(0.0, 0.1, dist); float k21 = mix(0.0, 0.1, dist); float k22 = mix(0.0, 0.1, dist);
+
+	vec4 color = texture2D(colorTextureIn, position);
 	vec3 c00 = texture2D(colorTextureIn, position + vec2(-1., -1.) * frac).xyz;
 	vec3 c01 = texture2D(colorTextureIn, position + vec2( 0., -1.) * frac).xyz;
 	vec3 c02 = texture2D(colorTextureIn, position + vec2( 1., -1.) * frac).xyz;
@@ -38,5 +44,5 @@ void main(void) {
 	finalColor += c21 * k21;
 	finalColor += c22 * k22;
 
-	gl_FragColor = vec4(vec3(test.r), 1.0);
+	gl_FragColor = vec4(finalColor, 1.0);
 }

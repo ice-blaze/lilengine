@@ -39,16 +39,13 @@ export default class DepthField extends Quad {
 
 		gl.useProgram(this.program)
 
-		// http://blog.tojicode.com/2012/07/using-webgldepthtexture.html
-		// https://stackoverflow.com/questions/16762159/webgl-depth-texture-all-white
-		// http://jsfiddle.net/greggman/q3ane/
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, colorTexture)
 		gl.uniform1i(gl.getUniformLocation(this.program, "colorTextureIn"), 0)
 
 		gl.activeTexture(gl.TEXTURE1)
 		gl.bindTexture(gl.TEXTURE_2D, depthTexture)
-		gl.uniform1i(gl.getUniformLocation(this.program, "depthTextureIn"), 0)
+		gl.uniform1i(gl.getUniformLocation(this.program, "depthTextureIn"), 1)
 
 		gl.uniform2f(this.screenSizeIn, width, height)
 

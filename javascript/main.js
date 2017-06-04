@@ -20,8 +20,9 @@ const elements = []
 
 function getGl(canvas) {
 	try {
-		return canvas.getContext("experimental-webgl", {
+		return canvas.getContext("webgl", {
 			antialias: true,
+			depth: true,
 		})
 	} catch (e) {
 		alert("You are not webgl compatible :(") // eslint-disable-line no-alert
@@ -37,11 +38,10 @@ function main() {
 
 	const gl = getGl(canvas)
 
-	// gl.enable(gl.DEPTH_TEST)
 	// gl.depthFunc(gl.LESS)
 	const depthExt = gl.getExtension("WEBGL_depth_texture")
-	if (!depthExt) {
-		console.log("proute")
+	if (depthExt === null) {
+		console.warn("depth texture not supported")
 	}
 
 	const MAX_OBJ = 4
@@ -97,16 +97,15 @@ function main() {
 		gl.viewport(0.0, 0.0, canvas.width, canvas.height)
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex.buffer)
-		gl.bindRenderbuffer(gl.RENDERBUFFER, bufftex.render)
 
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawCubes() {
 			GLB.gameObjectHierarchy.forEach((parent) => {
 				// position could shift because of floating precision errors
-				parent.position[0] += Math.sin(time / 1000) / 100
-				parent.rotate[0] = 4 * Math.sin(time / 1000)
-				parent.rotate[1] = 4 * Math.sin(time / 1000)
+				parent.position[2] = (Math.sin(time / 1000) * 10) - 20
+				// parent.rotate[0] = 4 * Math.sin(time / 1000)
+				// parent.rotate[1] = 4 * Math.sin(time / 1000)
 				// cube1.scale[0] = 4 * Math.sin(time/1000)
 				parent.children[0].scale[1] = 4 * Math.sin(time / 1000)
 			})
@@ -120,11 +119,9 @@ function main() {
 		skybox.draw()
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-		gl.bindRenderbuffer(gl.RENDERBUFFER, null)
 		gl.disable(gl.DEPTH_TEST)
 
-		depth.draw(canvas.width, canvas.height, bufftex.texture, bufftex.depth, document)
-		// chromatic.draw(time, canvas.width, canvas.height, bufftex.texture, document)
+		depth.draw(canvas.width, canvas.height, bufftex.colorTexture, bufftex.depthTexture, document)
 
 		GLB.firstLoop += 1
 	}

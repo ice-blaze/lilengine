@@ -46,49 +46,40 @@ export function range(n) {
 // create framebuffer with texture, renderbuffer, and buffer
 export function createFramebuffer(gl, width, height) {
 	// Framebuffer part
-	const buffer = gl.createFramebuffer()
-	gl.bindFramebuffer(gl.FRAMEBUFFER, buffer)
-	buffer.width = width
-	buffer.height = height
-
-	const texture = gl.createTexture()
-	gl.bindTexture(gl.TEXTURE_2D, texture)
+	const colorTexture = gl.createTexture()
+	gl.bindTexture(gl.TEXTURE_2D, colorTexture)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 	gl.texImage2D(
-		gl.TEXTURE_2D, 0, gl.RGBA, buffer.width, buffer.height, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+		gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE,
 		null,
 	)
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
 
 	// Create the depth texture
-	const depth = gl.createTexture()
-	gl.bindTexture(gl.TEXTURE_2D, depth)
+	const depthTexture = gl.createTexture()
+	gl.bindTexture(gl.TEXTURE_2D, depthTexture)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 	gl.texImage2D(
-		gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, buffer.width, buffer.height, 0,
+		gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, width, height, 0,
 		gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null,
 	)
 
-	const render = gl.createRenderbuffer()
-	gl.bindRenderbuffer(gl.RENDERBUFFER, render)
-	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height)
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depth, 0)
-	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render)
+	const buffer = gl.createFramebuffer()
+	gl.bindFramebuffer(gl.FRAMEBUFFER, buffer)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorTexture, 0)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0)
 
 	gl.bindTexture(gl.TEXTURE_2D, null)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-	gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+
 	return {
 		buffer,
-		texture,
-		depth,
-		render,
+		colorTexture,
+		depthTexture,
 	}
 }
