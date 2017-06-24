@@ -32,6 +32,9 @@ export default class DepthField extends Quad {
 
 		this.near = gl.getUniformLocation(this.program, "uNear")
 		this.far = gl.getUniformLocation(this.program, "uFar")
+
+		this.colorTexIn = gl.getUniformLocation(this.program, "colorTextureIn")
+		this.depthTexIn = gl.getUniformLocation(this.program, "depthTextureIn")
 	}
 
 	draw(width, height, colorTexture, depthTexture, document) {
@@ -41,11 +44,11 @@ export default class DepthField extends Quad {
 
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, colorTexture)
-		gl.uniform1i(gl.getUniformLocation(this.program, "colorTextureIn"), 0)
+		gl.uniform1i(this.colorTexIn, 0)
 
 		gl.activeTexture(gl.TEXTURE1)
 		gl.bindTexture(gl.TEXTURE_2D, depthTexture)
-		gl.uniform1i(gl.getUniformLocation(this.program, "depthTextureIn"), 1)
+		gl.uniform1i(this.depthTexIn, 1)
 
 		gl.uniform2f(this.screenSizeIn, width, height)
 
