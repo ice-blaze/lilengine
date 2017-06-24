@@ -14,10 +14,11 @@ void main(void) {
 	vec2 position = gl_FragCoord.xy / screenSizeIn;
 
 	float depth = texture2D(depthTextureIn, position).x;
-	// TODO world near and world far
-	float n = 1.0;
-	float f = 2000.0;
-	float dist = (2.0 * n) / (f + n - depth * (f - n));
+	float near = uNear;
+	float far = uFar;
+	float dist = (2.0 * near) / (far + near - depth * (far - near));
+	/* attempt to blur the near plane too */
+	/* dist = clamp(4.0 * dist * dist - 4.0 * dist + 1.0, 0.0, 1.0); */
 
 	float k00 = mix(0.0, 0.1, dist); float k01 = mix(0.0, 0.1, dist); float k02 = mix(0.0, 0.1, dist);
 	float k10 = mix(0.0, 0.1, dist); float k11 = mix(1.0, 0.2, dist); float k12 = mix(0.0, 0.1, dist);
@@ -33,6 +34,7 @@ void main(void) {
 	vec3 c20 = texture2D(colorTextureIn, position + vec2(-1.,  1.) * frac).xyz;
 	vec3 c21 = texture2D(colorTextureIn, position + vec2( 0.,  1.) * frac).xyz;
 	vec3 c22 = texture2D(colorTextureIn, position + vec2( 1.,  1.) * frac).xyz;
+
 	vec3 finalColor = vec3(0.0);
 	finalColor += c00 * k00;
 	finalColor += c01 * k01;
@@ -45,4 +47,5 @@ void main(void) {
 	finalColor += c22 * k22;
 
 	gl_FragColor = vec4(finalColor, 1.0);
+	/* gl_FragColor = vec4(vec3(dist), 1.0); */
 }

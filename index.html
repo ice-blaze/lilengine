@@ -20,8 +20,18 @@
 				<button class="button">Capsule</button>
 			</div>
 			<div id="depthMenu">
-				depth near <input type="range" id="depth_near" min="-10" max="10" />
-				depth far <input type="range" id="depth_far" min="-10" max="10" />
+				<div class="row">
+					<div class="medium-6 columns">
+						<label> depth near
+							<input type="number" id="depth_near" min="1" value="1"/>
+						</label>
+					</div>
+					<div class="medium-6 columns">
+						<label> depth near
+							depth far <input type="number" id="depth_far" min="1" value="600"/>
+						</label>
+					</div>
+				</div>
 			</div>
 			<div id="chromaticMenu">
 				<div class="row">
