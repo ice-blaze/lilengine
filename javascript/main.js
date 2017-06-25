@@ -69,7 +69,8 @@ function main() {
 	const chromatic = new ChromaticAberration(gl)
 	const depth = new DepthField(gl)
 
-	const bufftex1 = createFramebuffer(gl, canvas.width, canvas.height)
+	const sceneBufftex = createFramebuffer(gl, canvas.width, canvas.height)
+	const depthBufftex = createFramebuffer(gl, canvas.width, canvas.height)
 
 	let timeOld = 0
 	const counterList = []
@@ -96,8 +97,7 @@ function main() {
 
 		gl.viewport(0.0, 0.0, canvas.width, canvas.height)
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex1.buffer)
-
+		gl.bindFramebuffer(gl.FRAMEBUFFER, sceneBufftex.buffer)
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawCubes() {
@@ -118,18 +118,18 @@ function main() {
 		drawCubes()
 		skybox.draw()
 
-		const bufftex2 = createFramebuffer(gl, canvas.width, canvas.height)
-		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex2.buffer)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, depthBufftex.buffer)
+		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		depth.draw(
-			canvas.width, canvas.height, bufftex1.colorTexture, bufftex1.depthTexture,
+			canvas.width, canvas.height, sceneBufftex.colorTexture, sceneBufftex.depthTexture,
 			document,
 		)
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.disable(gl.DEPTH_TEST)
 
-		chromatic.draw(time, canvas.width, canvas.height, bufftex2.colorTexture, document)
+		chromatic.draw(time, canvas.width, canvas.height, depthBufftex.colorTexture, document)
 
 		GLB.firstLoop += 1
 	}
