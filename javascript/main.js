@@ -1,7 +1,7 @@
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
-// import ChromaticAberration from "./chromatic_aberration"
+import ChromaticAberration from "./chromatic_aberration"
 import { range, createFramebuffer } from "./utils"
 import DepthField from "./depth_field"
 import assets from "./assets"
@@ -66,10 +66,10 @@ function main() {
 	const skybox = new SkyBox(gl, "skybox", canvas)
 	skybox.scale.set([100000, 100000, 100000])
 
-	// const chromatic = new ChromaticAberration(gl)
+	const chromatic = new ChromaticAberration(gl)
 	const depth = new DepthField(gl)
 
-	const bufftex = createFramebuffer(gl, canvas.width, canvas.height)
+	const bufftex1 = createFramebuffer(gl, canvas.width, canvas.height)
 
 	let timeOld = 0
 	const counterList = []
@@ -96,7 +96,7 @@ function main() {
 
 		gl.viewport(0.0, 0.0, canvas.width, canvas.height)
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex.buffer)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex1.buffer)
 
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
@@ -118,10 +118,18 @@ function main() {
 		drawCubes()
 		skybox.draw()
 
+		const bufftex2 = createFramebuffer(gl, canvas.width, canvas.height)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex2.buffer)
+
+		depth.draw(
+			canvas.width, canvas.height, bufftex1.colorTexture, bufftex1.depthTexture,
+			document,
+		)
+
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.disable(gl.DEPTH_TEST)
 
-		depth.draw(canvas.width, canvas.height, bufftex.colorTexture, bufftex.depthTexture, document)
+		chromatic.draw(time, canvas.width, canvas.height, bufftex2.colorTexture, document)
 
 		GLB.firstLoop += 1
 	}

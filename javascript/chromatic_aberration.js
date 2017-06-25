@@ -46,7 +46,6 @@ export default class ChromaticAberration extends Quad {
 
 		gl.uniform2f(this.screenSizeIn, width, height)
 
-
 		const rHori = getValue(document, "r_horizontal")
 		const rVert = getValue(document, "r_vertical")
 		const rSpeed = getValue(document, "r_speed")
