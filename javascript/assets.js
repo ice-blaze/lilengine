@@ -9,6 +9,7 @@ const urls = {
 		mainShader: ["shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl"],
 		skybox: ["shaders/skybox_vs.glsl", "shaders/skybox_fs.glsl"],
 		chromatic: ["shaders/chromatic_abberation_vs.glsl", "shaders/chromatic_abberation_fs.glsl"],
+		depth: ["shaders/depth_vs.glsl", "shaders/depth_fs.glsl"],
 	},
 	models: {
 		cube: "./models/cube.obj",
@@ -82,4 +83,3 @@ keys(urls.shaders).forEach((shaderName) => {
 keys(urls.models).forEach((modelName) => {
 	loadModel(modelName, urls.models[modelName])
 })
-

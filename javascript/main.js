@@ -1,8 +1,9 @@
 import SkyBox from "./skybox"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
-import { range, createFramebuffer } from "./utils"
 import ChromaticAberration from "./chromatic_aberration"
+import { range, createFramebuffer } from "./utils"
+import DepthField from "./depth_field"
 import assets from "./assets"
 
 // GLOBALS
@@ -19,8 +20,9 @@ const elements = []
 
 function getGl(canvas) {
 	try {
-		return canvas.getContext("experimental-webgl", {
+		return canvas.getContext("webgl", {
 			antialias: true,
+			depth: true,
 		})
 	} catch (e) {
 		alert("You are not webgl compatible :(") // eslint-disable-line no-alert
@@ -36,8 +38,11 @@ function main() {
 
 	const gl = getGl(canvas)
 
-	gl.enable(gl.DEPTH_TEST)
-	gl.depthFunc(gl.LESS)
+	// gl.depthFunc(gl.LESS)
+	const depthExt = gl.getExtension("WEBGL_depth_texture")
+	if (depthExt === null) {
+		console.warn("depth texture not supported")
+	}
 
 	const MAX_OBJ = 4
 	range(MAX_OBJ).forEach((i) => {
@@ -62,8 +67,10 @@ function main() {
 	skybox.scale.set([100000, 100000, 100000])
 
 	const chromatic = new ChromaticAberration(gl)
+	const depth = new DepthField(gl)
 
-	const bufftex = createFramebuffer(gl, canvas.width, canvas.height)
+	const sceneBufftex = createFramebuffer(gl, canvas.width, canvas.height)
+	const depthBufftex = createFramebuffer(gl, canvas.width, canvas.height)
 
 	let timeOld = 0
 	const counterList = []
@@ -76,6 +83,7 @@ function main() {
 			return
 		}
 
+		gl.enable(gl.DEPTH_TEST)
 		const dt = time - timeOld
 		counterList.push(dt)
 		const floorTime = Math.floor(time / 1000)
@@ -89,17 +97,15 @@ function main() {
 
 		gl.viewport(0.0, 0.0, canvas.width, canvas.height)
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, bufftex.buffer)
-		gl.bindRenderbuffer(gl.RENDERBUFFER, bufftex.render)
-
+		gl.bindFramebuffer(gl.FRAMEBUFFER, sceneBufftex.buffer)
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawCubes() {
 			GLB.gameObjectHierarchy.forEach((parent) => {
 				// position could shift because of floating precision errors
-				parent.position[0] += Math.sin(time / 1000) / 100
-				parent.rotate[0] = 4 * Math.sin(time / 1000)
-				parent.rotate[1] = 4 * Math.sin(time / 1000)
+				parent.position[2] = (Math.sin(time / 1000) * 10) - 20
+				// parent.rotate[0] = 4 * Math.sin(time / 1000)
+				// parent.rotate[1] = 4 * Math.sin(time / 1000)
 				// cube1.scale[0] = 4 * Math.sin(time/1000)
 				parent.children[0].scale[1] = 4 * Math.sin(time / 1000)
 			})
@@ -112,10 +118,18 @@ function main() {
 		drawCubes()
 		skybox.draw()
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-		gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, depthBufftex.buffer)
+		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
-		chromatic.draw(time, canvas.width, canvas.height, bufftex.texture, document)
+		depth.draw(
+			canvas.width, canvas.height, sceneBufftex.colorTexture, sceneBufftex.depthTexture,
+			document,
+		)
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+		gl.disable(gl.DEPTH_TEST)
+
+		chromatic.draw(time, canvas.width, canvas.height, depthBufftex.colorTexture, document)
 
 		GLB.firstLoop += 1
 	}

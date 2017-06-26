@@ -26,13 +26,13 @@ export default class ChromaticAberration extends Quad {
 
 		this.vertexBuffer = gl.createBuffer()
 		this.indexBuffer = gl.createBuffer()
+
 		this.coordIn = gl.getAttribLocation(this.program, "coordinate")
+		this.screenSizeIn = gl.getUniformLocation(this.program, "screenSizeIn")
 
 		this.rOffset = gl.getUniformLocation(this.program, "urOffset")
 		this.gOffset = gl.getUniformLocation(this.program, "ugOffset")
 		this.bOffset = gl.getUniformLocation(this.program, "ubOffset")
-
-		this.screenSizeIn = gl.getUniformLocation(this.program, "screenSizeIn")
 	}
 
 	draw(time, width, height, texture, document) {
@@ -46,7 +46,6 @@ export default class ChromaticAberration extends Quad {
 
 		gl.uniform2f(this.screenSizeIn, width, height)
 
-
 		const rHori = getValue(document, "r_horizontal")
 		const rVert = getValue(document, "r_vertical")
 		const rSpeed = getValue(document, "r_speed")
@@ -56,12 +55,11 @@ export default class ChromaticAberration extends Quad {
 		const bHori = getValue(document, "b_horizontal")
 		const bVert = getValue(document, "b_vertical")
 		const bSpeed = getValue(document, "b_speed")
-		// gl.uniform2f(this.rOffset, Math.sin(0.01 * time) * rHori, rVerti)
+
 		gl.uniform2f(this.rOffset, rHori * Math.sin(time * rSpeed), rVert * Math.sin(time * rSpeed))
 		gl.uniform2f(this.gOffset, gHori * Math.sin(time * gSpeed), gVert * Math.sin(time * gSpeed))
 		gl.uniform2f(this.bOffset, bHori * Math.sin(time * bSpeed), bVert * Math.sin(time * bSpeed))
 
-		// const vertexBuffer = gl.createBuffer()
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
 		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW)
 
