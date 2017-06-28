@@ -1,4 +1,5 @@
 import SkyBox from "./skybox"
+import Heightmap from "./heightmap"
 import GameObject from "./game_object"
 import initCanvasButton from "./canvas_buttons"
 import ChromaticAberration from "./chromatic_aberration"
@@ -64,6 +65,7 @@ function main() {
 	})
 
 	const skybox = new SkyBox(gl, "skybox", canvas)
+	const heightmap = new Heightmap(gl, "heightmap", canvas, "./skyboxes/default.png")
 	skybox.scale.set([100000, 100000, 100000])
 
 	const chromatic = new ChromaticAberration(gl)
