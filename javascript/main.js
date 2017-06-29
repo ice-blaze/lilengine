@@ -65,7 +65,7 @@ function main() {
 	})
 
 	const skybox = new SkyBox(gl, "skybox", canvas)
-	const heightmap = new Heightmap(gl, "heightmap", canvas, "./skyboxes/default.png")
+	const heightmap = new Heightmap(gl, "heightmap", canvas, "./heightmaps/valley_heightmap.png")
 	skybox.scale.set([100000, 100000, 100000])
 
 	const chromatic = new ChromaticAberration(gl)

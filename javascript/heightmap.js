@@ -11,6 +11,7 @@ export default class Heightmap {
 		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
+		this.loaded = false
 
 		// const file = assets.models.skybox
 		// const skyboxMesh = new OBJ.Mesh(file)
@@ -35,6 +36,27 @@ export default class Heightmap {
 		//     // gl.bindTexture(gl.TEXTURE_2D, null)
 		// }
 		// this.image.src = imageUrl
+		function getFormattedDate() {
+			var date = new Date();
+
+			var month = date.getMonth() + 1;
+			var day = date.getDate();
+			var hour = date.getHours();
+			var min = date.getMinutes();
+			var sec = date.getSeconds();
+
+			month = (month < 10 ? "0" : "") + month;
+			day = (day < 10 ? "0" : "") + day;
+			hour = (hour < 10 ? "0" : "") + hour;
+			min = (min < 10 ? "0" : "") + min;
+			sec = (sec < 10 ? "0" : "") + sec;
+
+			var str = date.getFullYear() + "-" + month + "-" + day + "_" +  hour + ":" + min + ":" + sec;
+
+			/*alert(str);*/
+
+			return str;
+		}
 		getPixels(imageUrl, (err, pixels) => {
 			if (err) {
 				console.log("Bad image path")
@@ -47,23 +69,12 @@ export default class Heightmap {
 			const columnCount = pixels.shape.slice()[1]
 			const colorCount = pixels.shape.slice()[2]
 			// TODO two line by two line
-			// for (let line = 0; line < lineCount - 1; line += 1) {
-			//     // TODO 2x2 squares to create 2 triangles and pushing them into the vertices and indices
-			//     for (let column = 0; line < columnCount - 1; column += 1) {
-			//         console.log("test")
-			//     }
-			// }
-			// for (let i = 0; i < pixels.data.length; i += colorCount) {
-			//     if (!(
-			//         pix[i] === pix[i + 1] &&
-			//         pix[i] === pix[i + 2]
-			//     )) {
-			//         console.log("WOW")
-			//     }
-			//     // console.log("coolor: " + pixels.data[i] + )
-			//     // console.log("coolor: " + pixels.data[i + 1])
-			// }
-			// console.log(pixels.data)
+			for (let line = 0; line < lineCount - 1; line += 1) {
+				// TODO 2x2 squares to create 2 triangles and pushing them into the vertices and indices
+				for (let column = 0; column < columnCount - 1; column += 1) {
+					console.log("test")
+				}
+			}
 		})
 
 		// this.program = createProgram(gl, assets.shaders.skybox)
