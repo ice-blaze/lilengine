@@ -1,10 +1,9 @@
 import { vec3, mat4 } from "gl-matrix"
 import getPixels from "get-pixels"
-// import { OBJ } from "webgl-obj-loader"
 import assets from "./assets"
 import { createProgram } from "./utils"
 
-const OBJ = require("webgl-obj-loader")
+const OBJ = require("webgl-obj-loader")  // import are not availble
 
 export default class Heightmap {
 	constructor(gl, name = "GameObject", canvas, imageUrl) {
@@ -13,18 +12,36 @@ export default class Heightmap {
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
 		this.loaded = false
 
-		// const file = assets.models.skybox
-		// const skyboxMesh = new OBJ.Mesh(file)
-
 		this.name = name
-
-		// this.vertices = skyboxMesh.vertices
-		// this.textures = skyboxMesh.textures
-		// this.indices = skyboxMesh.indices
 
 		this.gl = gl
 
+		this.children = []
+		this.parent = null
 		this.texture = gl.createTexture()
+
+		this.verticesBuffer = gl.createBuffer()
+		this.normals_buffer = gl.createBuffer()
+		this.indicesBuffer = gl.createBuffer()
+
+		this.program = createProgram(gl, assets.shaders.mainShader)
+
+		// MVP Matrix
+		this.pMatrix = mat4.create()
+		mat4.perspective(this.pMatrix, 80, canvas.width / canvas.height, 0.1, 100.0)
+
+		// global lightning
+		this.globalLight = vec3.fromValues(1, -1, 1)
+		// maybe should be moved to the draw part
+		vec3.normalize(this.globalLight, this.globalLight)
+
+		this.screenSizeIn = gl.getUniformLocation(this.program, "screenSizeIn")
+		this.globalTime = gl.getUniformLocation(this.program, "globalTimeIn")
+		this.pMatrixIn = gl.getUniformLocation(this.program, "pMatrix")
+		this.globalLightIn = gl.getUniformLocation(this.program, "globalLightIn")
+
+		this.normalMatrix = mat4.create()
+
 		// this.image = new Image()
 		// this.image.onload = () => {
 		//     console.log(this.image.getImageData(1,1,1,1)) // gl.bindTexture(gl.TEXTURE_2D, this.texture)
@@ -36,104 +53,149 @@ export default class Heightmap {
 		//     // gl.bindTexture(gl.TEXTURE_2D, null)
 		// }
 		// this.image.src = imageUrl
-		function getFormattedDate() {
-			var date = new Date();
 
-			var month = date.getMonth() + 1;
-			var day = date.getDate();
-			var hour = date.getHours();
-			var min = date.getMinutes();
-			var sec = date.getSeconds();
+		// getPixels(imageUrl, (err, pixels) => {
+		//     // after the image is loaded create the heightmap 3D model
+		//     if (err) {
+		//         console.log("Bad image path")
+		//         return
+		//     }
 
-			month = (month < 10 ? "0" : "") + month;
-			day = (day < 10 ? "0" : "") + day;
-			hour = (hour < 10 ? "0" : "") + hour;
-			min = (min < 10 ? "0" : "") + min;
-			sec = (sec < 10 ? "0" : "") + sec;
+		//     const pix = pixels.data
+		//     const lineCount = pixels.shape.slice()[0]
+		//     const columnCount = pixels.shape.slice()[1]
+		//     const colorCount = pixels.shape.slice()[2]
 
-			var str = date.getFullYear() + "-" + month + "-" + day + "_" +  hour + ":" + min + ":" + sec;
+		//     // TODO would be better to no use push
+		//     // const indicesMax = (columnCount - 1) * (lineCount - 1) * 6
+		//     // this.vertices = new Float32Array(indicesMax * 3)
+		//     // this.normals = new Float32Array(indicesMax * 3)
+		//     // this.indices = new Uint16Array(indicesMax)
+		//     this.vertices = []
+		//     this.normals = []
+		//     this.indices = []
 
-			/*alert(str);*/
+		//     // TODO iterate two lines by two lines
+		//     console.log("got pixels", pixels.shape.slice())
+		//     // for (let i = 0; i < pix.length; i += 1) {
 
-			return str;
-		}
-		getPixels(imageUrl, (err, pixels) => {
-			if (err) {
-				console.log("Bad image path")
-				return
-			}
-			// TODO iterate two lines by two lines
-			console.log("got pixels", pixels.shape.slice())
-			const pix = pixels.data
-			const lineCount = pixels.shape.slice()[0]
-			const columnCount = pixels.shape.slice()[1]
-			const colorCount = pixels.shape.slice()[2]
-			// TODO two line by two line
-			for (let line = 0; line < lineCount - 1; line += 1) {
-				// TODO 2x2 squares to create 2 triangles and pushing them into the vertices and indices
-				for (let column = 0; column < columnCount - 1; column += 1) {
-					console.log("test")
-				}
-			}
-		})
 
-		// this.program = createProgram(gl, assets.shaders.skybox)
-		// this.pMatrixInSkybox = gl.getUniformLocation(this.program, "pMatrix")
-		// this.pSkyboxMatrix = mat4.create()
-		// mat4.perspective(this.pSkyboxMatrix, 80, canvas.width / canvas.height, 0.1, 1000000.0)
-		// this.verticesBuffer = gl.createBuffer()
-		// this.textureBuffer = gl.createBuffer()
-		// this.indicesBuffer = gl.createBuffer()
+		//     // }
+		//     let i = 0
+		//     // loop over line
+		//     for (let line = 0; line < lineCount - 1; line += 1) {
+		//         // loop over column
+		//         for (let column = 0; column < columnCount - 1; column += 1) {
+		//             // 1-2
+		//             // | |
+		//             // 3-4
+		//             const pt1 = pix[((line * columnCount) + column) * colorCount]
+		//             const v1 = vec3.fromValues(column, 0 [> pt1 <], line)
+		//             const pt2 = pix[((line * columnCount) + column + 1) * colorCount]
+		//             const v2 = vec3.fromValues(column + 1, 0 [> pt2 <], line)
+		//             const pt3 = pix[(((line + 1) * columnCount) + column) * colorCount]
+		//             const v3 = vec3.fromValues(column, 0 [> pt3 <], line + 1)
+		//             const pt4 = pix[(((line + 1) * columnCount) + column + 1) * colorCount]
+		//             const v4 = vec3.fromValues(column + 1, 0 [> pt4 <], line + 1)
+
+		//             // first triangle
+		//             this.vertices.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z)
+		//             const n1 = vec3.fromValues()
+		//             const sub1 = vec3.fromValues()
+		//             const sub2 = vec3.fromValues()
+		//             vec3.sub(sub1, v2, v3)
+		//             vec3.sub(sub2, v1, v3)
+		//             vec3.cross(n1, sub1, sub2)
+		//             this.normals.push(n1.x, n1.y, n1.z, n1.x, n1.y, n1.z, n1.x, n1.y, n1.z)
+
+		//             // second triangle
+		//             this.vertices.push(v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z)
+		//             const n2 = vec3.fromValues()
+		//             vec3.sub(sub1, v4, v3)
+		//             vec3.sub(sub2, v2, v3)
+		//             vec3.cross(n2, sub1, sub2)
+		//             this.normals.push(n2.x, n2.y, n2.z, n2.x, n2.y, n2.z, n2.x, n2.y, n2.z)
+
+		//             // push the indices of both triangle
+		//             this.indices.push(i, i + 1, i + 2, i + 3, i + 4, i + 5)
+		//             i += 6
+
+		//             if (line === lineCount / 2 && column === columnCount / 2) {
+		//                 console.log(v1)
+		//                 console.log("test2")
+		//             }
+		//         }
+		//     }
+		//     console.log("loop finished")
+
+		//     // TODO remove when Float32Array are used as default
+		//     this.vertices = new Float32Array(this.vertices)
+		//     this.normals = new Float32Array(this.normals)
+		//     this.indices = new Uint16Array(this.indices)
+
+		//     this.loaded = true
+		// })
+		const objMesh = new OBJ.Mesh(assets.models.cube)
+
+		this.vertices = new Float32Array(objMesh.vertices)
+		this.indices = new Uint16Array(objMesh.indices)
+		this.normals = new Float32Array(objMesh.vertexNormals)
 	}
 
 	modelMatrix() {
-		// let model = mat4.create()
-		// if (this.parent) {
-		//     model = this.parent.modelMatrix()
-		// }
-		// mat4.translate(model, model, this.position)
-		// mat4.rotateX(model, model, this.rotate[0])
-		// mat4.rotateY(model, model, this.rotate[1])
-		// mat4.rotateZ(model, model, this.rotate[2])
-		// mat4.scale(model, model, this.scale)
+		let model = mat4.create()
+		if (this.parent) {
+			model = this.parent.modelMatrix()
+		}
+		mat4.translate(model, model, this.position)
+		mat4.rotateX(model, model, this.rotate[0])
+		mat4.rotateY(model, model, this.rotate[1])
+		mat4.rotateZ(model, model, this.rotate[2])
+		mat4.scale(model, model, this.scale)
 
-		// return model
+		return model
 	}
 
-	draw() {
-		// const gl = this.gl
+	draw(canvas, time) {
+		if (this.loaded === true) {
+			const gl = this.gl
+			gl.useProgram(this.program)
+			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
 
-		// gl.useProgram(this.program)
+			gl.uniform2f(this.screenSizeIn, canvas.width, canvas.height)
+			gl.uniform3fv(this.globalLightIn, this.globalLight)
+			gl.uniform1f(this.globalTime, time / 1000)
+			gl.uniformMatrix4fv(this.pMatrixIn, false, this.pMatrix)
 
-		// gl.uniformMatrix4fv(this.pMatrixInSkybox, false, this.pSkyboxMatrix)
-		// // // this..rotate[1] = 4 * Math.sin(time / 1000)
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW)
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.normals_buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, this.normals, gl.STATIC_DRAW)
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW)
 
-		// gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
-		// gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW)
-		// gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer)
-		// gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textures), gl.STATIC_DRAW)
-		// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
-		// gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW)
+			console.log(this.normals.length)
 
-		// gl.activeTexture(gl.TEXTURE0)
-		// gl.bindTexture(gl.TEXTURE_2D, this.texture)
-		// gl.uniform1i(gl.getUniformLocation(this.program, "samplerIn"), 0)
+			const mvMatrix = this.modelMatrix()
+			mat4.invert(this.normalMatrix, mvMatrix)
+			mat4.transpose(this.normalMatrix, this.normalMatrix)
+			this.normal_matrix_in = gl.getUniformLocation(this.program, "normalMatrix")
+			gl.uniformMatrix4fv(this.normal_matrix_in, false, this.normalMatrix)
+			this.mvMatrixIn = gl.getUniformLocation(this.program, "mvMatrix")
+			gl.uniformMatrix4fv(this.mvMatrixIn, false, mvMatrix)
+			this.normalIn = gl.getAttribLocation(this.program, "normal")
+			gl.enableVertexAttribArray(this.normalIn)
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.normals_buffer)
+			gl.vertexAttribPointer(this.normalIn, 3, gl.FLOAT, false, 0, 0)
+			this.coordIn = gl.getAttribLocation(this.program, "coordinate")
+			gl.enableVertexAttribArray(this.coordIn)
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+			gl.vertexAttribPointer(this.coordIn, 3, gl.FLOAT, false, 0, 0)
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
 
-		// this.mvMatrix = gl.getUniformLocation(this.program, "mvMatrix")
-		// gl.uniformMatrix4fv(this.mvMatrix, false, this.modelMatrix())
+			gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0)
 
-		// this.coordIn = gl.getAttribLocation(this.program, "coordinate")
-		// gl.enableVertexAttribArray(this.coordIn)
-		// gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
-		// gl.vertexAttribPointer(this.coordIn, 3, gl.FLOAT, false, 0, 0)
-
-		// this.textureIn = gl.getAttribLocation(this.program, "uv")
-		// gl.enableVertexAttribArray(this.textureIn)
-		// gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer)
-		// gl.vertexAttribPointer(this.textureIn, 2, gl.FLOAT, false, 0, 0)
-
-		// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
-
-		// gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0)
+			gl.flush()
+		}
 	}
 }
