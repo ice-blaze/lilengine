@@ -67,9 +67,6 @@ function main() {
 	const skybox = new SkyBox(gl, "skybox", canvas)
 	skybox.scale.set([100000, 100000, 100000])
 	const heightmap = new Heightmap(gl, "heightmap", canvas, "./heightmaps/valley_heightmap.png")
-	heightmap.position.set([
-		(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5),
-	])
 
 	const chromatic = new ChromaticAberration(gl)
 	const depth = new DepthField(gl)
@@ -123,8 +120,9 @@ function main() {
 		drawCubes()
 		skybox.draw()
 		heightmap.draw(canvas, time)
+		heightmap.position[0] = -90
 		heightmap.position[2] = (Math.sin(time / 1000) * 10) - 20
-		// heightmap.rotate[0] = 4 * Math.sin(time / 1000)
+		heightmap.scale[1] = 0.1
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, depthBufftex.buffer)
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
