@@ -45,11 +45,11 @@ function main() {
 		console.warn("depth texture not supported")
 	}
 
-	const MAX_OBJ = 4
+	const MAX_OBJ = 10
 	range(MAX_OBJ).forEach((i) => {
 		const cube1 = new GameObject(gl, assets.models.cube, `obja${i}`, canvas)
-		// const cube2 = GameObject.create(gl, "./models/cube.obj", "objb" + i)
-		const cube2 = new GameObject(gl, assets.models.bunny, `objb${i}`, canvas)
+		const cube2 = new GameObject(gl, assets.models.cube, `objb${i}`, canvas)
+		// const cube2 = new GameObject(gl, assets.models.bunny, `objb${i}`, canvas)
 		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.setChild(cube2)
 
@@ -67,6 +67,12 @@ function main() {
 	const skybox = new SkyBox(gl, "skybox", canvas)
 	skybox.scale.set([100000, 100000, 100000])
 	const heightmap = new Heightmap(gl, "heightmap", canvas, "./heightmaps/valley_heightmap.png")
+	heightmap.position[2] = -60
+	heightmap.position[0] = 20
+	heightmap.position[1] = -40
+	heightmap.scale[1] = 0.4
+	heightmap.scale[0] = 2.4
+	heightmap.scale[2] = 2.4
 
 	const chromatic = new ChromaticAberration(gl)
 	const depth = new DepthField(gl)
@@ -106,8 +112,8 @@ function main() {
 			GLB.gameObjectHierarchy.forEach((parent) => {
 				// position could shift because of floating precision errors
 				parent.position[2] = (Math.sin(time / 1000) * 10) - 20
-				// parent.rotate[0] = 4 * Math.sin(time / 1000)
-				// parent.rotate[1] = 4 * Math.sin(time / 1000)
+				// parent.rotation[0] = 4 * Math.sin(time / 1000)
+				// parent.rotation[1] = 4 * Math.sin(time / 1000)
 				// cube1.scale[0] = 4 * Math.sin(time/1000)
 				parent.children[0].scale[1] = 4 * Math.sin(time / 1000)
 			})
@@ -120,9 +126,6 @@ function main() {
 		drawCubes()
 		skybox.draw()
 		heightmap.draw(canvas, time)
-		heightmap.position[0] = -90
-		heightmap.position[2] = (Math.sin(time / 1000) * 10) - 20
-		heightmap.scale[1] = 0.1
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, depthBufftex.buffer)
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator

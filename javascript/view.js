@@ -28,9 +28,9 @@ const view = {
 				y: ${sgo.position[1].toFixed(decimal)}<br>
 				z: ${sgo.position[2].toFixed(decimal)}<br>
 				rotation: <br>
-				x: ${sgo.rotate[0].toFixed(decimal)}<br>
-				y: ${sgo.rotate[1].toFixed(decimal)}<br>
-				z: ${sgo.rotate[2].toFixed(decimal)}<br>
+				x: ${sgo.rotation[0].toFixed(decimal)}<br>
+				y: ${sgo.rotation[1].toFixed(decimal)}<br>
+				z: ${sgo.rotation[2].toFixed(decimal)}<br>
 				scale: <br>
 				x: ${sgo.scale[0].toFixed(decimal)}<br>
 				y: ${sgo.scale[1].toFixed(decimal)}<br>
