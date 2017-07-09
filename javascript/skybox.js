@@ -1,21 +1,17 @@
-import { vec3, mat4 } from "gl-matrix"
+import { mat4 } from "gl-matrix"
 // import { OBJ } from "webgl-obj-loader"
 import assets from "./assets"
+import Hierarchy from "./hierarchy"
 import { createProgram } from "./utils"
 
 const OBJ = require("webgl-obj-loader")
 
-export default class SkyBox {
+export default class SkyBox extends Hierarchy {
 	constructor(gl, name = "GameObject", canvas, camera) {
-		this.position = vec3.fromValues(0.0, 0.0, 0.0)
-		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
-		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
+		super(name)
 
 		const file = assets.models.skybox
 		const skyboxMesh = new OBJ.Mesh(file)
-
-		this.name = name
-		this.camera = camera
 
 		this.vertices = skyboxMesh.vertices
 		this.textures = skyboxMesh.textures
@@ -50,23 +46,6 @@ export default class SkyBox {
 		this.verticesBuffer = gl.createBuffer()
 		this.textureBuffer = gl.createBuffer()
 		this.indicesBuffer = gl.createBuffer()
-	}
-
-	modelMatrix() {
-		let model = mat4.create()
-		if (this.parent) {
-			model = this.parent.modelMatrix()
-		} else {
-			mat4.translate(model, model, this.camera.position)
-		}
-
-		mat4.translate(model, model, this.position)
-		mat4.rotateX(model, model, this.rotate[0])
-		mat4.rotateY(model, model, this.rotate[1])
-		mat4.rotateZ(model, model, this.rotate[2])
-		mat4.scale(model, model, this.scale)
-
-		return model
 	}
 
 	draw() {

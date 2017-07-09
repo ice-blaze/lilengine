@@ -2,16 +2,13 @@ import { vec3, mat4 } from "gl-matrix"
 import getPixels from "get-pixels"
 import assets from "./assets"
 import { createProgram } from "./utils"
+import Hierarchy from "./hierarchy"
 
-// TODO Inherit of gameobject
-export default class Heightmap {
+export default class Heightmap extends Hierarchy {
 	constructor(gl, name = "GameObject", canvas, imageUrl, camera) {
-		this.position = vec3.fromValues(0.0, 0.0, 0.0)
-		this.rotation = vec3.fromValues(0.0, 0.0, 0.0)
-		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
+		super(name)
 		this.loaded = false
 
-		this.name = name
 		this.camera = camera
 
 		this.children = []
@@ -164,23 +161,6 @@ export default class Heightmap {
 
 			this.loaded = true
 		})
-	}
-
-	modelMatrix() {
-		let model = mat4.create()
-		if (this.parent) {
-			model = this.parent.modelMatrix()
-		} else {
-			mat4.translate(model, model, this.camera.position)
-		}
-
-		mat4.translate(model, model, this.position)
-		mat4.rotateX(model, model, this.rotation[0])
-		mat4.rotateY(model, model, this.rotation[1])
-		mat4.rotateZ(model, model, this.rotation[2])
-		mat4.scale(model, model, this.scale)
-
-		return model
 	}
 
 	draw(canvas, time) {
