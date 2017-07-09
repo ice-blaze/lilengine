@@ -13,7 +13,7 @@ export default class GameObject extends Hierarchy {
 		this.camera = camera
 
 		this.verticesBuffer = gl.createBuffer()
-		this.normals_buffer = gl.createBuffer()
+		this.normalsBuffer = gl.createBuffer()
 		this.indicesBuffer = gl.createBuffer()
 
 		const objMesh = new OBJ.Mesh(model)
@@ -56,7 +56,7 @@ export default class GameObject extends Hierarchy {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
 		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW)
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.normals_buffer)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer)
 		gl.bufferData(gl.ARRAY_BUFFER, this.normals, gl.STATIC_DRAW)
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW)
@@ -70,7 +70,7 @@ export default class GameObject extends Hierarchy {
 		gl.uniformMatrix4fv(this.mvMatrixIn, false, mvMatrix)
 		this.normalIn = gl.getAttribLocation(this.program, "normal")
 		gl.enableVertexAttribArray(this.normalIn)
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.normals_buffer)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer)
 		gl.vertexAttribPointer(this.normalIn, 3, gl.FLOAT, false, 0, 0)
 		this.coordIn = gl.getAttribLocation(this.program, "coordinate")
 		gl.enableVertexAttribArray(this.coordIn)
