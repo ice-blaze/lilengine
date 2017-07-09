@@ -17,7 +17,11 @@ export default class Hierarchy {
 		let model = mat4.create()
 		if (this.parent) {
 			model = this.parent.modelMatrix()
-		} else {
+		} else if (this.camera) {
+			mat4.rotateX(model, model, this.camera.rotation[0])
+			mat4.rotateY(model, model, this.camera.rotation[1])
+			mat4.rotateZ(model, model, this.camera.rotation[2])
+
 			mat4.translate(model, model, this.camera.position)
 		}
 
