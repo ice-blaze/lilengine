@@ -6,7 +6,7 @@ import { createProgram } from "./utils"
 const OBJ = require("webgl-obj-loader")
 
 export default class SkyBox {
-	constructor(gl, name = "GameObject", canvas) {
+	constructor(gl, name = "GameObject", canvas, camera) {
 		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
@@ -15,12 +15,14 @@ export default class SkyBox {
 		const skyboxMesh = new OBJ.Mesh(file)
 
 		this.name = name
+		this.camera = camera
 
 		this.vertices = skyboxMesh.vertices
 		this.textures = skyboxMesh.textures
 		this.indices = skyboxMesh.indices
 
 		this.gl = gl
+		this.camera = camera
 
 		this.texture = gl.createTexture()
 		this.image = new Image()
@@ -38,7 +40,13 @@ export default class SkyBox {
 		this.program = createProgram(gl, assets.shaders.skybox)
 		this.pMatrixInSkybox = gl.getUniformLocation(this.program, "pMatrix")
 		this.pSkyboxMatrix = mat4.create()
-		mat4.perspective(this.pSkyboxMatrix, 80, canvas.width / canvas.height, 0.1, 1000000.0)
+		mat4.perspective(
+			this.pSkyboxMatrix,
+			this.camera.yFov,
+			canvas.width / canvas.height,
+			0.1,
+			1000000.0,
+		)
 		this.verticesBuffer = gl.createBuffer()
 		this.textureBuffer = gl.createBuffer()
 		this.indicesBuffer = gl.createBuffer()
@@ -64,7 +72,6 @@ export default class SkyBox {
 		gl.useProgram(this.program)
 
 		gl.uniformMatrix4fv(this.pMatrixInSkybox, false, this.pSkyboxMatrix)
-		// // this..rotate[1] = 4 * Math.sin(time / 1000)
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW)

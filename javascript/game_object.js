@@ -6,7 +6,7 @@ import assets from "./assets"
 const OBJ = require("webgl-obj-loader")  // import are not availble
 
 export default class GameObject {
-	constructor(gl, model, name = "name", canvas) {
+	constructor(gl, model, name = "name", canvas, camera) {
 		this.name = name
 		this.children = []
 		this.parent = null
@@ -14,6 +14,8 @@ export default class GameObject {
 		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotation = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
+
+		this.camera = camera
 
 		this.verticesBuffer = gl.createBuffer()
 		this.normals_buffer = gl.createBuffer()
@@ -32,7 +34,7 @@ export default class GameObject {
 
 		// MVP Matrix
 		this.pMatrix = mat4.create()
-		mat4.perspective(this.pMatrix, 80, canvas.width / canvas.height, 0.1, 100.0)
+		mat4.perspective(this.pMatrix, this.camera.yFov, canvas.width / canvas.height, 0.1, 100.0)
 
 		// global lightning
 		this.globalLight = vec3.fromValues(1, -1, 1)

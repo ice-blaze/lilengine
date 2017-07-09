@@ -5,13 +5,14 @@ import { createProgram } from "./utils"
 
 // TODO Inherit of gameobject
 export default class Heightmap {
-	constructor(gl, name = "GameObject", canvas, imageUrl) {
+	constructor(gl, name = "GameObject", canvas, imageUrl, camera) {
 		this.position = vec3.fromValues(0.0, 0.0, 0.0)
 		this.rotation = vec3.fromValues(0.0, 0.0, 0.0)
 		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
 		this.loaded = false
 
 		this.name = name
+		this.camera = camera
 
 		this.children = []
 		this.parent = null
@@ -27,7 +28,7 @@ export default class Heightmap {
 
 		// MVP Matrix
 		this.pMatrix = mat4.create()
-		mat4.perspective(this.pMatrix, 80, canvas.width / canvas.height, 0.1, 100.0)
+		mat4.perspective(this.pMatrix, this.camera.yFov, canvas.width / canvas.height, 0.1, 100.0)
 
 		// global lightning
 		this.globalLight = vec3.fromValues(1, -1, 1)

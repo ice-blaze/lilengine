@@ -6,6 +6,7 @@ import ChromaticAberration from "./chromatic_aberration"
 import { range, createFramebuffer } from "./utils"
 import DepthField from "./depth_field"
 import assets from "./assets"
+import Camera from "./camera"
 
 // GLOBALS
 const GLB = {
@@ -45,10 +46,12 @@ function main() {
 		console.warn("depth texture not supported")
 	}
 
+	const camera = new Camera(gl, "camera", canvas)
+
 	const MAX_OBJ = 10
 	range(MAX_OBJ).forEach((i) => {
-		const cube1 = new GameObject(gl, assets.models.cube, `obja${i}`, canvas)
-		const cube2 = new GameObject(gl, assets.models.cube, `objb${i}`, canvas)
+		const cube1 = new GameObject(gl, assets.models.cube, `obja${i}`, canvas, camera)
+		const cube2 = new GameObject(gl, assets.models.cube, `objb${i}`, canvas, camera)
 		// const cube2 = new GameObject(gl, assets.models.bunny, `objb${i}`, canvas)
 		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.setChild(cube2)
@@ -64,9 +67,9 @@ function main() {
 		cube2.position.set([-2.0, 0.0, -0.0])
 	})
 
-	const skybox = new SkyBox(gl, "skybox", canvas)
+	const skybox = new SkyBox(gl, "skybox", canvas, camera)
 	skybox.scale.set([100000, 100000, 100000])
-	const heightmap = new Heightmap(gl, "heightmap", canvas, "./heightmaps/valley_heightmap.png")
+	const heightmap = new Heightmap(gl, "heightmap", canvas, "./heightmaps/valley_heightmap.png", camera)
 	heightmap.position[2] = -60
 	heightmap.position[0] = 20
 	heightmap.position[1] = -40
