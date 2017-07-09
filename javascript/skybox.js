@@ -56,7 +56,10 @@ export default class SkyBox {
 		let model = mat4.create()
 		if (this.parent) {
 			model = this.parent.modelMatrix()
+		} else {
+			mat4.translate(model, model, this.camera.position)
 		}
+
 		mat4.translate(model, model, this.position)
 		mat4.rotateX(model, model, this.rotate[0])
 		mat4.rotateY(model, model, this.rotate[1])

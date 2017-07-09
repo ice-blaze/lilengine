@@ -7,6 +7,7 @@ import { range, createFramebuffer } from "./utils"
 import DepthField from "./depth_field"
 import assets from "./assets"
 import Camera from "./camera"
+import Keyboard from "./keyboard"
 
 // GLOBALS
 const GLB = {
@@ -47,6 +48,7 @@ function main() {
 	}
 
 	const camera = new Camera(gl, "camera", canvas)
+	const keyboard = new Keyboard(camera)  // eslint-disable-line no-unused-vars
 
 	const MAX_OBJ = 10
 	range(MAX_OBJ).forEach((i) => {

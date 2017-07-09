@@ -53,7 +53,10 @@ export default class GameObject {
 		let model = mat4.create()
 		if (this.parent) {
 			model = this.parent.modelMatrix()
+		} else {
+			mat4.translate(model, model, this.camera.position)
 		}
+
 		mat4.translate(model, model, this.position)
 		mat4.rotateX(model, model, this.rotation[0])
 		mat4.rotateY(model, model, this.rotation[1])
