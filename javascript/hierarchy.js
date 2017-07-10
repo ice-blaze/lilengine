@@ -38,6 +38,41 @@ export default class Hierarchy {
 		removeArray(this.children, object)
 	}
 
+	multiplyVectorWithRotation(initialVector, scale) {
+		const v = initialVector
+
+		const m = mat4.create()
+		mat4.rotateX(m, m, this.rotation[0])
+		mat4.rotateZ(m, m, this.rotation[2])
+		mat4.rotateY(m, m, this.rotation[1])
+
+		const newVec = vec3.fromValues(0.0, 0.0, 0.0)
+		newVec[0] = (m[0] * v[0]) + (m[1] * v[1]) + (m[2] * v[2])
+		newVec[1] = (m[4] * v[0]) + (m[5] * v[1]) + (m[6] * v[2])
+		newVec[2] = (m[8] * v[0]) + (m[9] * v[1]) + (m[10] * v[2])
+
+		vec3.scale(newVec, newVec, scale)
+		return newVec
+	}
+
+	forward(scale) {
+		return this.multiplyVectorWithRotation(
+			vec3.fromValues(0.0, 0.0, 1.0), scale,
+		)
+	}
+
+	right(scale) {
+		return this.multiplyVectorWithRotation(
+			vec3.fromValues(1.0, 0.0, 0.0), scale,
+		)
+	}
+
+	up(scale) {
+		return this.multiplyVectorWithRotation(
+			vec3.fromValues(0.0, 1.0, 0.0), scale,
+		)
+	}
+
 	setParent(newParent) {
 		if (!(newParent instanceof Hierarchy)) {
 			console.warn("Trying to set a parent that is not a GameObject")

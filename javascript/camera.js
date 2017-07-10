@@ -1,14 +1,10 @@
-import { vec3 } from "gl-matrix"
 import view from "./view"
+import Hierarchy from "./hierarchy"
 import { removeArray } from "./utils"
 
-export default class Camera {
+export default class Camera extends Hierarchy {
 	constructor(gl, name = "name") {
-		this.name = name
-		this.children = []
-		this.parent = null
-		this.position = vec3.fromValues(0.0, 0.0, 0.0)
-		this.rotation = vec3.fromValues(0.0, 0.0, 0.0)
+		super(name)
 
 		this.yFov = 80
 	}

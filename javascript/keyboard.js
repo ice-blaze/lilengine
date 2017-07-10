@@ -1,3 +1,5 @@
+import { vec3 } from "gl-matrix"
+
 export default class Keyboard {
 	constructor(camera) {
 		this.camera = camera
@@ -14,25 +16,42 @@ export default class Keyboard {
 		}, false)
 
 		const translationSpeed = 0.1  // TODO multiply with a delta
-		const rotationSpeed = -0.001  // TODO multiply with a delta
+		const rotationSpeed = -0.01  // TODO multiply with a delta
+		const pi = 3.14
+		const halfPi = pi / 2.0
 
 		setInterval(() => {
 			// Translation part
-			// TODO move front and not based on X, forward = 1,0,0 + rotation
 			if (this.keypressed.w) {
-				this.camera.position[2] += translationSpeed
+				vec3.add(
+					this.camera.position,
+					this.camera.position,
+					this.camera.forward(translationSpeed),
+				)
 			}
 
 			if (this.keypressed.s) {
-				this.camera.position[2] -= translationSpeed
+				vec3.sub(
+					this.camera.position,
+					this.camera.position,
+					this.camera.forward(translationSpeed),
+				)
 			}
 
 			if (this.keypressed.q) {
-				this.camera.position[0] -= translationSpeed
+				vec3.sub(
+					this.camera.position,
+					this.camera.position,
+					this.camera.right(translationSpeed),
+				)
 			}
 
 			if (this.keypressed.e) {
-				this.camera.position[0] += translationSpeed
+				vec3.add(
+					this.camera.position,
+					this.camera.position,
+					this.camera.right(translationSpeed),
+				)
 			}
 
 			if (this.keypressed.a) {
@@ -46,10 +65,12 @@ export default class Keyboard {
 			// Rotation part
 			if (this.keypressed.ArrowUp) {
 				this.camera.rotation[0] += rotationSpeed
+				this.camera.rotation[0] = Math.max(this.camera.rotation[0], -halfPi)
 			}
 
 			if (this.keypressed.ArrowDown) {
 				this.camera.rotation[0] -= rotationSpeed
+				this.camera.rotation[0] = Math.min(this.camera.rotation[0], halfPi)
 			}
 
 			if (this.keypressed.ArrowLeft) {
