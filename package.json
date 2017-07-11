@@ -8,6 +8,7 @@
     "get-pixels": "^3.3.0",
     "gl-matrix": "^2.3.2",
     "jquery": "^3.2.1",
+    "jquery-sortable": "^0.9.13",
     "jquery-ui": "^1.12.1",
     "jquery-ui-dist": "^1.12.1",
     "webgl-obj-loader": "^0.1.1"

@@ -1,4 +1,5 @@
 const path = require("path")
+const webpack = require("webpack")
 
 module.exports = {
 	entry: {
@@ -14,6 +15,12 @@ module.exports = {
 			"jquery-ui": "jquery-ui-dist/jquery-ui.js",
 		},
 	},
+	plugins: [
+		new webpack.ProvidePlugin({
+			$: "jquery",
+			jQuery: "jquery",
+		}),
+	],
 	module: {
 		rules: [{
 			test: /\.scss$/,
