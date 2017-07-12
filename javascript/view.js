@@ -1,5 +1,5 @@
 import $ from "jquery"
-import "jquery-ui"
+import "nestedSortable"
 import GLB from "./main"
 
 const view = {
@@ -7,13 +7,20 @@ const view = {
 	updateHierarchy() {
 		$("#gameobjectHierarchy>li").remove()
 		let i = 0
+
 		GLB.gameObjectHierarchy.forEach((gameobject) => {
 			i += 1
-			$("#gameobjectHierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a></li>`)
+			$("#gameobjectHierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a><ol></ol></li>`)
 			$(`#${gameobject.name}`).click((ev) => {
 				GLB.selectedGameObject = GLB.gameObjectHierarchy[ev.currentTarget.name]
 				view.updateInspector()
 			})
+		})
+
+		$("#gameobjectHierarchy").nestedSortable({
+			handle: "a",
+			items: "li",
+			toleranceElement: "> a",
 		})
 	},
 	updateInspector() {

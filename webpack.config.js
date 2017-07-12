@@ -4,7 +4,9 @@ const webpack = require("webpack")
 module.exports = {
 	entry: {
 		main: "./javascript/main.js",
-		style: "./css/menus.scss",
+		style: [
+			"./css/menus.scss",
+		],
 	},
 	output: {
 		path: path.join(__dirname, "dist"),
@@ -12,7 +14,8 @@ module.exports = {
 	},
 	resolve: {
 		alias: {
-			"jquery-ui": "jquery-ui-dist/jquery-ui.js",
+			"jquery-ui": "jquery-ui/ui/widgets",
+			"jquery-ui-css": "jquery-ui/../../themes/base",
 		},
 	},
 	plugins: [

@@ -1,5 +1,4 @@
 import $ from "jquery"
-import "jquery-ui"
 import ShaderSource from "../shaders/shaders"
 
 const keys = Object.keys
