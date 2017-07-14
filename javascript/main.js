@@ -14,8 +14,8 @@ const GLB = {
 	canvasPlay: true,
 	animate: undefined,
 	firstLoop: 0,
-	gameObjectHierarchy: [],
-	selectedGameObject: null,
+	gameObjectHierarchyRoot: undefined,
+	selectedGameObject: undefined,
 }
 export default GLB
 
@@ -49,16 +49,17 @@ function main() {
 
 	const camera = new Camera(gl, "camera", canvas)
 	const keyboard = new Keyboard(camera)  // eslint-disable-line no-unused-vars
+	GLB.gameObjectHierarchyRoot = new GameObject(gl, "root", canvas, camera)
 
 	const MAX_OBJ = 10
 	range(MAX_OBJ).forEach((i) => {
-		const cube1 = new GameObject(gl, assets.models.cube, `obja${i}`, canvas, camera)
-		const cube2 = new GameObject(gl, assets.models.cube, `objb${i}`, canvas, camera)
+		const cube1 = new GameObject(gl, `obja${i}`, canvas, camera, assets.models.cube, "main")
+		const cube2 = new GameObject(gl, `objb${i}`, canvas, camera, assets.models.cube)
 		// const cube2 = new GameObject(gl, assets.models.bunny, `objb${i}`, canvas)
 		console.log(`generated ${i}/${MAX_OBJ}`)
 		cube1.setChild(cube2)
 
-		GLB.gameObjectHierarchy.push(cube1)
+		GLB.gameObjectHierarchyRoot.setChild(cube1)
 		elements.push(cube1)
 		elements.push(cube2)
 		GLB.selectedGameObject = cube1
@@ -114,7 +115,7 @@ function main() {
 		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
 		function drawCubes() {
-			GLB.gameObjectHierarchy.forEach((parent) => {
+			GLB.gameObjectHierarchyRoot.getChilds("main").forEach((parent) => {
 				// position could shift because of floating precision errors
 				parent.position[2] = (Math.sin(time / 1000) * 10) - 20
 				// parent.rotation[0] = 4 * Math.sin(time / 1000)
@@ -123,7 +124,7 @@ function main() {
 				parent.children[0].scale[1] = 4 * Math.sin(time / 1000)
 			})
 
-			elements.forEach((gameObject) => {
+			GLB.gameObjectHierarchyRoot.getChilds().forEach((gameObject) => {
 				gameObject.draw(canvas, time)
 			})
 		}

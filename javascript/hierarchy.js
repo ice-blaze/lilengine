@@ -1,10 +1,11 @@
 import { vec3, mat4 } from "gl-matrix"
 import view from "./view"
-import { removeArray } from "./utils"
+import { removeArray, uid } from "./utils"
 
 export default class Hierarchy {
 	constructor(name = "name") {
 		this.name = name
+		this.id = uid()
 		this.children = []
 		this.parent = null
 
@@ -125,5 +126,41 @@ export default class Hierarchy {
 		child.parent = this
 
 		view.updateHierarchy()
+	}
+
+	getChilds(tag = undefined, arr = []) {
+		if (tag) {
+			if (this.tag === tag) {
+				arr.push(this)
+			}
+		} else {
+			arr.push(this)
+		}
+		this.children.forEach((child) => {
+			child.getChilds(tag, arr)
+		})
+		return arr
+	}
+
+	findById(id) {
+		let res
+		this.getChilds().forEach((child) => {
+			if (child.id === id && !res) {
+				res = child
+			}
+		})
+		return res
+
+		// if (this.id === id) {
+		//     return this
+		// }
+
+		// this.children.forEach((child) => {
+		//     const res = child.findById(id)
+		//     if (res) {
+		//         return res
+		//     }
+		// })
+		// return undefined
 	}
 }

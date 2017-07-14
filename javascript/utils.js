@@ -43,6 +43,11 @@ export function range(n) {
 	return [...Array(n)].map((_, i) => i)
 }
 
+// return a "uniqur" id
+export function uid() {
+	return Math.random().toString(36).substr(2, 9)
+}
+
 // create framebuffer with texture, renderbuffer, and buffer
 export function createFramebuffer(gl, width, height) {
 	// Framebuffer part

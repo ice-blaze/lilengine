@@ -6,7 +6,7 @@ import Hierarchy from "./hierarchy"
 const OBJ = require("webgl-obj-loader")  // import are not availble
 
 export default class GameObject extends Hierarchy {
-	constructor(gl, model, name = "name", canvas, camera) {
+	constructor(gl, name = "name", canvas, camera, model = undefined, tag = undefined) {
 		super(name)
 		this.texture = null // the image texture
 
@@ -16,12 +16,16 @@ export default class GameObject extends Hierarchy {
 		this.normalsBuffer = gl.createBuffer()
 		this.indicesBuffer = gl.createBuffer()
 
-		const objMesh = new OBJ.Mesh(model)
+		this.tag = tag
 
-		this.vertices = new Float32Array(objMesh.vertices)
-		this.textures = objMesh.textures
-		this.indices = new Uint16Array(objMesh.indices)
-		this.normals = new Float32Array(objMesh.vertexNormals)
+		if (model) {
+			const objMesh = new OBJ.Mesh(model)
+
+			this.vertices = new Float32Array(objMesh.vertices)
+			this.textures = objMesh.textures
+			this.indices = new Uint16Array(objMesh.indices)
+			this.normals = new Float32Array(objMesh.vertexNormals)
+		}
 
 		this.gl = gl
 
@@ -45,6 +49,10 @@ export default class GameObject extends Hierarchy {
 	}
 
 	draw(canvas, time) {
+		// if there is no model, don't draw
+		if (!this.indices) {
+			return
+		}
 		const gl = this.gl
 		gl.useProgram(this.program)
 		// Pass the screen size to the shaders as uniform and quad coordinates as attribute

@@ -6,13 +6,12 @@ const view = {
 	// Refresh the hierarchypanel
 	updateHierarchy() {
 		$("#gameobjectHierarchy>li").remove()
-		let i = 0
 
-		GLB.gameObjectHierarchy.forEach((gameobject) => {
-			i += 1
-			$("#gameobjectHierarchy").append(`<li><a name='${i}' id='${gameobject.name}'>${gameobject.name}</a><ol></ol></li>`)
+		// slice to remove the root element that should not be displayed into the hierarchy
+		GLB.gameObjectHierarchyRoot.getChilds().slice(1).forEach((gameobject) => {
+			$("#gameobjectHierarchy").append(`<li><a name='${gameobject.id}' id='${gameobject.name}'>${gameobject.name}</a><ol></ol></li>`)
 			$(`#${gameobject.name}`).click((ev) => {
-				GLB.selectedGameObject = GLB.gameObjectHierarchy[ev.currentTarget.name]
+				GLB.selectedGameObject = GLB.gameObjectHierarchyRoot.findById(ev.currentTarget.name)
 				view.updateInspector()
 			})
 		})
