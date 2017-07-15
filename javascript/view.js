@@ -8,18 +8,27 @@ const view = {
 		$("#gameobjectHierarchy>li").remove()
 
 		// slice to remove the root element that should not be displayed into the hierarchy
-		GLB.gameObjectHierarchyRoot.getChilds().slice(1).forEach((gameobject) => {
-			$("#gameobjectHierarchy").append(`<li><a name='${gameobject.id}' id='${gameobject.name}'>${gameobject.name}</a><ol></ol></li>`)
-			$(`#${gameobject.name}`).click((ev) => {
+		function appendGameObject(root, gameobject) {
+			$(`ul${root}`).append(`<li><a name='${gameobject.id}' id='${gameobject.name}'>${gameobject.name}</a><ul id="${gameobject.id}"></ul></li>`)
+			$(`a[name=${gameobject.id}]`).click((ev) => {
 				GLB.selectedGameObject = GLB.gameObjectHierarchyRoot.findById(ev.currentTarget.name)
 				view.updateInspector()
 			})
+
+			gameobject.children.forEach((child) => {
+				appendGameObject(`#${gameobject.id}`, child)
+			})
+		}
+
+		GLB.gameObjectHierarchyRoot.children.forEach((gameobject) => {
+			appendGameObject("#gameobjectHierarchy", gameobject)
 		})
 
 		$("#gameobjectHierarchy").nestedSortable({
 			handle: "a",
 			items: "li",
 			toleranceElement: "> a",
+			listType: "ul",
 		})
 	},
 	updateInspector() {
