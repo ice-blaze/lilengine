@@ -3,8 +3,14 @@ services:
   web:
     volumes:
      - ".:/code"
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-start
     ports:
      - "8080:8080"
-  node:
-    image: "node:carbon"
+  test:
+    volumes:
+     - ".:/code"
+    build:
+      context: .
+      dockerfile: Dockerfile-test

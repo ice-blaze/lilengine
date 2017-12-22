@@ -1,5 +1,5 @@
 FROM node:carbon
-ADD . /code
+COPY . /code
 WORKDIR /code
 RUN npm install
-CMD ["npm", "start"]
+CMD ["npm", "run", "lint"]

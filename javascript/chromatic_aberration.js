@@ -16,7 +16,7 @@ class Quad {
 }
 
 export default class ChromaticAberration extends Quad {
-	constructor(gl/* , shaderProgram*/) {
+	constructor(gl/* , shaderProgram */) {
 		super()
 
 		this.gl = gl
