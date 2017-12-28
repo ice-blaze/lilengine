@@ -20,7 +20,6 @@
     "eslint-plugin-import": "^2.2.0",
     "http-server": "^0.9.0",
     "node-sass": "^4.5.2",
-    "pre-commit": "^1.2.2",
     "protractor": "^5.1.1",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.16.1",
@@ -34,9 +33,6 @@
     "pack": "webpack",
     "watch": "webpack --progress --colors --watch"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ice-blaze/lilengine.git"

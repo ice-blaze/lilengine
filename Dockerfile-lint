@@ -1,0 +1,2 @@
+FROM lilengine:base
+CMD npm run lint

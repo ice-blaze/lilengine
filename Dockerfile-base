@@ -1,5 +1,4 @@
 FROM node:carbon
 COPY . /code
 WORKDIR /code
-RUN npm install
-CMD ["npm", "run", "lint"]
+CMD npm install && ./setup-pre-commit.sh

@@ -1,16 +1,28 @@
-version: '3'
+version: '3.4'
 services:
-  web:
+  # build base first (or build all twice)
+  base:
+    image: lilengine:base
     volumes:
-     - ".:/code"
-    build:
+      - .:/code
+    build: 
+      context: .
+      dockerfile: Dockerfile-base
+  web:
+    image: lilengine:web
+    depends_on:
+      - base
+    volumes:
+      - .:/code
+    build: 
       context: .
       dockerfile: Dockerfile-start
-    ports:
-     - "8080:8080"
-  test:
+  lint:
+    image: lilengine:lint
+    depends_on:
+      - base
     volumes:
-     - ".:/code"
+      - .:/code
     build:
       context: .
-      dockerfile: Dockerfile-test
+      dockerfile: Dockerfile-lint
