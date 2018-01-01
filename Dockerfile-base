@@ -1,4 +1,0 @@
-FROM node:carbon
-COPY . /code
-WORKDIR /code
-CMD npm install && ./setup-pre-commit.sh
