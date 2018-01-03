@@ -30,7 +30,7 @@
     "start": "http-server & webpack --progress --colors --watch",
     "server": "http-server",
     "test": "./tests/launch_tests.sh",
-    "lint": "eslint ./ --ignore-pattern dist/",
+    "lint": "eslint ./",
     "pack": "webpack",
     "watch": "webpack --progress --colors --watch"
   },
