@@ -1,3 +1,13 @@
+@import "foundation";
+@include foundation-everything;
+
+$redColor: red;
+
+@mixin flex($value) {
+	-webkit-flex: $value;
+	flex: $value;
+}
+
 html,
 body {
 	margin: 0;
@@ -10,7 +20,7 @@ body {
 
 /* -- CANVAS PART -- */
 
-.counter_label {
+.counterLabel {
 	padding: 0.5em;
 	background-color: rgba(0, 0, 0, 0.65);
 	position: fixed;
@@ -42,7 +52,7 @@ canvas {
 	height: 10%;
 	min-height: 10%;
 	text-align: center;
-	background-color: red;
+	background-color: $redColor;
 }
 
 #horizontalMenus {
@@ -50,12 +60,11 @@ canvas {
 	display: -webkit-flex;
 	display: flex;
 	flex-direction: row;
-	-webkit-flex: 1;
-	flex: 1;
+	@include flex(1);
 }
 
 #leftMenu {
-	background-color: red;
+	background-color: $redColor;
 	-webkit-flex: initial;
 	flex: initial;
 	width: 10%;
@@ -64,15 +73,13 @@ canvas {
 
 #canvas-container {
 	text-align: center;
-	-webkit-flex: 1;
-	flex: 1;
+	@include flex(1);
 }
 
 #rightMenu {
 	width: 10%;
 	max-width: 10%;
 	height: auto;
-	background-color: red;
-	-webkit-flex: 2;
-	flex: 2;
+	background-color: $redColor;
+	@include flex(2);
 }

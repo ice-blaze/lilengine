@@ -3,35 +3,80 @@
 
 <head>
 	<meta charset='utf-8' />
-	<link rel="stylesheet" href="node_modules/foundation-sites/dist/css/foundation.min.css" />
-	<link rel="stylesheet" href="css/menus.css" />
-	<script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
-	<script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-		integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-	<script type="text/javascript" src="node_modules/gl-matrix/dist/gl-matrix-min.js"></script>
-	<script type="text/javascript" src="node_modules/webgl-obj-loader/webgl-obj-loader.js"></script>
-	<script type="text/javascript" src="node_modules/foundation-sites/dist/js/foundation.min.js"></script>
-	<script type="text/javascript" src="javascript/utils.js"></script>
-	<script type="text/javascript" src="javascript/view.js"></script>
-	<script type="text/javascript" src="javascript/game_object.js"></script>
-	<script type="text/javascript" src="javascript/skybox.js"></script>
-	<script type="text/javascript" src="shaders/shaders.js"></script>
-	<script type="text/javascript" src="javascript/main.js"></script>
+	<script type="text/javascript" src="dist/style.js"></script>
 </head>
 
-<body style='margin:0px' onload='main();small_res();'>
+<!-- <body style='margin:0px' onload='main();smallRes();'> -->
+<body style='margin:0px'>
 	<div id="verticalMenus">
 		<div id="topMenu" class="center">
-			<!--<ul class="flex-container">-->
+			<button class="button" id="3dMeshesButton">3D Meshes</button>
+			<button class="button" id="chromaticButton">Chromatic</button>
+			<button class="button" id="depthButton">Depth</button>
+			<div id="3dMeshesMenu">
 				<button class="button">Cube</button>
 				<button class="button">Sphere</button>
 				<button class="button">Cylinder</button>
 				<button class="button">Capsule</button>
-			<!--</ul>-->
+			</div>
+			<div id="depthMenu">
+				<div class="row">
+					<div class="medium-6 columns">
+						<label> depth near
+							<input type="number" id="depth_near" min="1" value="1"/>
+						</label>
+					</div>
+					<div class="medium-6 columns">
+						<label> depth near
+							depth far <input type="number" id="depth_far" min="1" value="600"/>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div id="chromaticMenu">
+				<div class="row">
+					<div class="large-2 columns right">
+						red chromatic
+					</div>
+					<div class="large-10 columns">
+						<input type="range" id="r_horizontal" min="-10" max="10" />
+						<input type="range" id="r_vertical" min="-10" max="10" />
+						<input type="range" id="r_speed" min="0" max="0.03" step="0.0001"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-2 columns">
+						green chromatic
+					</div>
+					<div class="large-10 columns">
+						<input type="range" id="g_horizontal" min="-10" max="10" />
+						<input type="range" id="g_vertical" min="-10" max="10" />
+						<input type="range" id="g_speed" min="0" max="0.03" step="0.0001"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-2 columns">
+						blue chromatic
+					</div>
+					<div class="large-10 columns">
+						<input type="range" id="b_horizontal" min="-10" max="10" />
+						<input type="range" id="b_vertical" min="-10" max="10" />
+						<input type="range" id="b_speed" min="0" max="0.03" step="0.0001"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-2 columns">
+						general speed
+					</div>
+					<div class="large-10 columns">
+						<input type="range" id="general_speed" min="0" max="0.03" step="0.0001"/>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div id="horizontalMenus">
 			<div id="leftMenu">
-				<ul class="vertical menu" id="gameobject_hierarchy">
+				<ul class="vertical menu" id="gameobjectHierarchy">
 					<li draggable="true"><a href="#">Dot</a></li>
 					<li><a href="#">ZURB</a></li>
 					<li><a href="#">Com</a></li>
@@ -41,33 +86,33 @@
 			</div>
 
 			<div id="canvas-container">
-				<div class="counter_label">
+				<div class="counterLabel">
 					<div class="content">
 						ms/f: <span id="counter">0.0</span>
 					</div>
 				</div>
-				<canvas id='demo_canvas'>
+				<canvas id='demoCanvas'>
 				</canvas>
 				<br>
 				<button type="button" class="button" id="topMenuButton">Open Top</button>
 				<button type="button" class="button" id="leftMenuButton">Open Left</button>
 				<button type="button" class="button" id="rightMenuButton">Open Right</button>
-				<button class="button" id="btn_small">Small</button>
-				<button class="button" id="btn_medium">Medium</button>
-				<button class="button" id="btn_fullscreen">Full Screen</button>
+				<button class="button" id="btnSmall">Small</button>
+				<button class="button" id="btnMedium">Medium</button>
+				<button class="button" id="btnFullscreen">Full Screen</button>
 				<!--<button id="btn_play">Play</button>-->
 			</div>
 
 			<div id="rightMenu">
-				<div id="gameobject_inspector">
+				<div id="gameobjectInspector">
 					None
 				</div>
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="javascript/canvas_buttons.js"></script>
+	<script type="text/javascript" src="dist/main.js"></script>
 	<script>
-		$(document).foundation();
+		<!-- foundation() -->
 	</script>
 	<!--<script type="text/javascript" src="tests/tests.js"></script>-->
 </body>

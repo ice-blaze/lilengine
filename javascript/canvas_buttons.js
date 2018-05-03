@@ -1,57 +1,62 @@
-demo_canvas = document.getElementById("demo_canvas");
+import GLB from "./main"
 
-min_width = 320;
-min_height = 240;
-med_width = 640;
-med_height = 480;
+const demoCanvas = document.getElementById("demoCanvas")
 
-// function play(){
-// 	canvas_play = !canvas_play
+const minWidth = 320
+const minHeight = 240
+const medWidth = 640
+const medHeight = 480
+
+// function play() {
+//     GLB.canvasPlay = !GLB.canvasPlay
 // }
-// document.getElementById("btn_play").onclick = play
+// document.getElementById("btnPlay").onclick = play
 
-function refresh_image() {
-	first_loop = 0
-	window.requestAnimationFrame(animate)
+function refreshImage() {
+	GLB.firstLoop = 0
+	window.requestAnimationFrame(GLB.animate)
 }
 
-function small_res() {
-	demo_canvas.width = min_width
-	demo_canvas.height = min_height
-	refresh_image()
+function smallRes() {
+	demoCanvas.width = minWidth
+	demoCanvas.height = minHeight
+	refreshImage()
 }
-document.getElementById("btn_small").onclick = small_res
 
-function medium_res() {
-	demo_canvas.width = med_width
-	demo_canvas.height = med_height
-	refresh_image()
+function mediumRes() {
+	demoCanvas.width = medWidth
+	demoCanvas.height = medHeight
+	refreshImage()
 }
-document.getElementById("btn_medium").onclick = medium_res
 
-document.getElementById("btn_fullscreen").onclick = function () {
-	demo_canvas.width = screen.width
-	demo_canvas.height = screen.height
+document.getElementById("btnFullscreen").onclick = () => {
+	demoCanvas.width = screen.width
+	demoCanvas.height = screen.height
 	if (navigator.userAgent.search("Firefox") > -1) {
-		demo_canvas.mozRequestFullScreen();
+		demoCanvas.mozRequestFullScreen()
 	} else {
-		demo_canvas.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+		demoCanvas.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT)
 	}
-	refresh_image()
+	refreshImage()
 }
 
 function onFullScreenChange() {
-	if (
+	if (!(
 		document.fullscreenElement ||
 		document.webkitFullscreenElement ||
 		document.mozFullScreenElement ||
 		document.msFullscreenElement
-	) {} else {
-		small_res()
+	)) {
+		smallRes()
 	}
 }
 
-document.addEventListener("fullscreenchange", onFullScreenChange);
-document.addEventListener("webkitfullscreenchange", onFullScreenChange);
-document.addEventListener("mozfullscreenchange", onFullScreenChange);
-document.addEventListener("MSFullscreenChange", onFullScreenChange);
+export default function initCanvasButton() {
+	document.getElementById("btnSmall").onclick = smallRes
+	document.getElementById("btnMedium").onclick = mediumRes
+
+	document.addEventListener("fullscreenchange", onFullScreenChange)
+	document.addEventListener("webkitfullscreenchange", onFullScreenChange)
+	document.addEventListener("mozfullscreenchange", onFullScreenChange)
+	document.addEventListener("MSFullscreenChange", onFullScreenChange)
+}

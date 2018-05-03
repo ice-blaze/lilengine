@@ -1,200 +1,161 @@
-var canvas_play = true
-var animate = undefined
-var first_loop = 0
-const gameobject_hierarchy = []
+import SkyBox from "./skybox"
+import Heightmap from "./heightmap"
+import GameObject from "./game_object"
+import initCanvasButton from "./canvas_buttons"
+import ChromaticAberration from "./chromatic_aberration"
+import { range, createFramebuffer } from "./utils"
+import DepthField from "./depth_field"
+import assets from "./assets"
+import Camera from "./camera"
+import Keyboard from "./keyboard"
+
+// GLOBALS
+const GLB = {
+	canvasPlay: true,
+	animate: undefined,
+	firstLoop: 0,
+	gameObjectHierarchyRoot: undefined,
+	selectedGameObject: undefined,
+}
+export default GLB
+
 const elements = []
-let selected_game_object = null
 
-
-const main = function () {
-	const CANVAS = document.getElementById("demo_canvas")
-	const COUNTER = document.getElementById("counter")
-	CANVAS.width = 320
-	CANVAS.height = 240
-
-	let GL
+function getGl(canvas) {
 	try {
-		GL = CANVAS.getContext("experimental-webgl", {
-			antialias: true
+		return canvas.getContext("webgl", {
+			antialias: true,
+			depth: true,
 		})
 	} catch (e) {
-		alert("You are not webgl compatible :(")
-		return false
+		alert("You are not webgl compatible :(") // eslint-disable-line no-alert
+		return undefined
+	}
+}
+
+function main() {
+	const canvas = document.getElementById("demoCanvas")
+	const counter = document.getElementById("counter")
+	canvas.width = 320
+	canvas.height = 240
+
+	const gl = getGl(canvas)
+
+	// gl.depthFunc(gl.LESS)
+	const depthExt = gl.getExtension("WEBGL_depth_texture")
+	if (depthExt === null) {
+		console.warn("depth texture not supported")
 	}
 
-	GL.enable(GL.DEPTH_TEST)
-	GL.depthFunc(GL.LESS);
+	const camera = new Camera(gl, "camera", canvas)
+	const keyboard = new Keyboard(camera)  // eslint-disable-line no-unused-vars
+	GLB.gameObjectHierarchyRoot = new GameObject(gl, "root", canvas, camera)
 
-	const MAX_OBJ = 4
-	for (var i = 0; i < MAX_OBJ; i++) {
-		const cube1 = GameObject.create(GL, "./models/cube.obj", "obja" + i)
-		// const cube2 = GameObject.create(GL, "./models/cube.obj", "objb" + i)
-		const cube2 = GameObject.create(GL, "./models/bunny.obj", "objb" + i)
-		console.log("generated " + i + "/" + MAX_OBJ)
-		cube1.set_child(cube2)
+	const MAX_OBJ = 10
+	range(MAX_OBJ).forEach((i) => {
+		const cube1 = new GameObject(gl, `obja${i}`, canvas, camera, assets.models.cube, "main")
+		const cube2 = new GameObject(gl, `objb${i}`, canvas, camera, assets.models.cube)
+		// const cube2 = new GameObject(gl, assets.models.bunny, `objb${i}`, canvas)
+		console.log(`generated ${i}/${MAX_OBJ}`)
+		cube1.setChild(cube2)
 
-		gameobject_hierarchy.push(cube1)
+		GLB.gameObjectHierarchyRoot.setChild(cube1)
 		elements.push(cube1)
 		elements.push(cube2)
-		selected_game_object = cube1
+		GLB.selectedGameObject = cube1
 
-		cube1.position.set([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5)])
+		cube1.position.set([
+			(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, -20.0 + (Math.random() - 0.5),
+		])
 		cube2.position.set([-2.0, 0.0, -0.0])
-	}
+	})
 
-	const skybox = SkyBox.create(GL, "skybox")
+	const skybox = new SkyBox(gl, "skybox", canvas, camera)
 	skybox.scale.set([100000, 100000, 100000])
+	const heightmap = new Heightmap(gl, "heightmap", canvas, "./heightmaps/valley_heightmap.png", camera)
+	heightmap.position[2] = -60
+	heightmap.position[0] = 20
+	heightmap.position[1] = -40
+	heightmap.scale[1] = 0.4
+	heightmap.scale[0] = 2.4
+	heightmap.scale[2] = 2.4
 
-	const get_shader = function (source, type, typeString) {
-		const shader = GL.createShader(type)
-		GL.shaderSource(shader, source)
-		GL.compileShader(shader)
-		if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)) {
-			console.log("ERROR IN " + typeString + " SHADER : " + GL.getShaderInfoLog(shader))
-			return false
-		}
-		return shader
-	}
+	const chromatic = new ChromaticAberration(gl)
+	const depth = new DepthField(gl)
 
-	const create_framebuffer = function (width, height) {
-		// Framebuffer part
-		let buffer = GL.createFramebuffer();
-		GL.bindFramebuffer(GL.FRAMEBUFFER, buffer);
-		buffer.width = width;
-		buffer.height = height;
-		let texture = GL.createTexture();
-		GL.bindTexture(GL.TEXTURE_2D, texture);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
-		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, buffer.width, buffer.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
-		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, texture, 0);
-		GL.bindTexture(GL.TEXTURE_2D, null);
-		GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+	const sceneBufftex = createFramebuffer(gl, canvas.width, canvas.height)
+	const depthBufftex = createFramebuffer(gl, canvas.width, canvas.height)
 
-		return {
-			buffer: buffer,
-			texture: texture
-		}
-	}
+	let timeOld = 0
+	const counterList = []
+	let lastMean = 0
 
-	for (let cube of elements) {
-		cube.init_buffers()
-	}
-	skybox.init_buffers()
-
-	// TODO acreate an object shader and link it to the GameObject
-	// Link the vertex and fragment shader
-	const shader_vertex = get_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX")
-	const shader_fragment = get_shader(shader_fragment_source, GL.FRAGMENT_SHADER, "FRAGMENT")
-	const MANDELBOX_PROGRAM = GL.createProgram()
-	GL.attachShader(MANDELBOX_PROGRAM, shader_vertex)
-	GL.attachShader(MANDELBOX_PROGRAM, shader_fragment)
-	GL.linkProgram(MANDELBOX_PROGRAM)
-	//TODO put it in the skybox part
-	//skybox shader
-	const skybox_vs = get_shader(skybox_vs_source, GL.VERTEX_SHADER, "SKYBOX VERTEX")
-	const skybox_fs = get_shader(skybox_fs_source, GL.FRAGMENT_SHADER, "SKYBOX FRAGMENT")
-	const SKYBOX_PROGRAM = GL.createProgram()
-	GL.attachShader(SKYBOX_PROGRAM, skybox_vs)
-	GL.attachShader(SKYBOX_PROGRAM, skybox_fs)
-	GL.linkProgram(SKYBOX_PROGRAM)
-
-	let bufftex = create_framebuffer(CANVAS.width, CANVAS.height)
-
-	//MVP Matrix
-	let p_matrix = mat4.create()
-	mat4.perspective(p_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 100.0)
-	// TODO put it in the skybox object
-	let p_skybox_matrix = mat4.create()
-	mat4.perspective(p_skybox_matrix, 80, CANVAS.width / CANVAS.height, 0.1, 1000000.0)
-
-	//global lightning
-	let global_light = vec3.fromValues(1, -1, 1)
-	vec3.normalize(global_light, global_light)
-
-	let screen_size_in
-	let global_time
-	let p_matrix_in
-	let global_light_in
-
-	let time_old = 0
-	let counter_list = []
-	let last_mean = 0
-
-	let temp_var
-
-	animate = function (time) {
-		window.requestAnimationFrame(animate)
-		if (!canvas_play && first_loop > 1) { //need to do two times the loop for an image
-			COUNTER.innerHTML = 0
+	GLB.animate = (time) => {
+		window.requestAnimationFrame(GLB.animate)
+		if (!GLB.canvasPlay && GLB.firstLoop > 1) { // need to do two times the loop for an image
+			counter.innerHTML = 0
 			return
 		}
 
-		let dt = time - time_old
-		counter_list.push(dt)
-		floor_time = Math.floor(time / 1000)
-		if (last_mean < floor_time) {
-			mean = counter_list.reduce((a, b) => a + b, 0) / counter_list.length;
-			COUNTER.innerHTML = Math.round(mean * 100) / 100
-			last_mean = floor_time
-			counter_list.length = 0
+		gl.enable(gl.DEPTH_TEST)
+		const dt = time - timeOld
+		counterList.push(dt)
+		const floorTime = Math.floor(time / 1000)
+		if (lastMean < floorTime) {
+			const mean = counterList.reduce((a, b) => a + b, 0) / counterList.length
+			counter.innerHTML = Math.round(mean * 100) / 100
+			lastMean = floorTime
+			counterList.length = 0
 		}
-		time_old = time
+		timeOld = time
 
-		GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height)
-		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT)
+		gl.viewport(0.0, 0.0, canvas.width, canvas.height)
 
-		const draw_mandlebox = function () {
-			GL.useProgram(MANDELBOX_PROGRAM)
-			// Pass the screen size to the shaders as uniform and quad coordinates as attribute
-			screen_size_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "screen_size_in")
-			GL.uniform2f(screen_size_in, CANVAS.width, CANVAS.height)
-			global_light_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_light_in")
-			GL.uniform3fv(global_light_in, global_light)
-			global_time = GL.getUniformLocation(MANDELBOX_PROGRAM, "global_time_in")
-			GL.uniform1f(global_time, time / 1000)
-			p_matrix_in = GL.getUniformLocation(MANDELBOX_PROGRAM, "p_matrix")
-			GL.uniformMatrix4fv(p_matrix_in, false, p_matrix)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, sceneBufftex.buffer)
+		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
-			for (let game_object of elements) {
-				game_object.set_shader_program(MANDELBOX_PROGRAM)
-			}
-
-			for (let parent of gameobject_hierarchy) {
+		function drawCubes() {
+			GLB.gameObjectHierarchyRoot.getChilds("main").forEach((parent) => {
 				// position could shift because of floating precision errors
-				parent.position[0] += Math.sin(time / 1000) / 100
-				parent.rotate[0] = 4 * Math.sin(time / 1000)
-				parent.rotate[1] = 4 * Math.sin(time / 1000)
+				parent.position[2] = (Math.sin(time / 1000) * 10) - 20
+				// parent.rotation[0] = 4 * Math.sin(time / 1000)
+				// parent.rotation[1] = 4 * Math.sin(time / 1000)
 				// cube1.scale[0] = 4 * Math.sin(time/1000)
 				parent.children[0].scale[1] = 4 * Math.sin(time / 1000)
-			}
+			})
 
-			for (let game_object of elements) {
-				game_object.draw()
-			}
-
-			GL.flush()
+			GLB.gameObjectHierarchyRoot.getChilds().forEach((gameObject) => {
+				gameObject.draw(canvas, time)
+			})
 		}
 
-		GL.bindFramebuffer(GL.FRAMEBUFFER, null)
+		drawCubes()
+		skybox.draw()
+		heightmap.draw(canvas, time)
 
-		draw_mandlebox()
+		gl.bindFramebuffer(gl.FRAMEBUFFER, depthBufftex.buffer)
+		gl.clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT) // originally use | bitwise operator
 
-		const draw_skybox = function () {
-			GL.useProgram(SKYBOX_PROGRAM)
-			skybox.set_shader_program(SKYBOX_PROGRAM)
+		depth.draw(
+			canvas.width, canvas.height, sceneBufftex.colorTexture, sceneBufftex.depthTexture,
+			document,
+		)
 
-			p_matrix_in = GL.getUniformLocation(SKYBOX_PROGRAM, "p_matrix")
-			GL.uniformMatrix4fv(p_matrix_in, false, p_skybox_matrix)
-			skybox.rotate[1] = 4 * Math.sin(time / 1000)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+		gl.disable(gl.DEPTH_TEST)
 
-			skybox.draw()
-		}
-		draw_skybox()
+		chromatic.draw(time, canvas.width, canvas.height, depthBufftex.colorTexture, document)
 
-		first_loop++;
+		GLB.firstLoop += 1
 	}
-	animate(0)
+	return GLB.animate(0)
 }
+
+const assetsWait = setInterval(() => {
+	if (assets.ready) {
+		main()
+		clearInterval(assetsWait)
+	}
+}, 1)
+
+initCanvasButton()

@@ -1,0 +1,43 @@
+version: '3.4'
+services:
+
+  # Do it first to initalize the node_modules folders
+  init:
+    image: node:9.3.0
+    volumes:
+      - .:/code
+    working_dir: /code
+    command: bash -c "npm install && ./setup-pre-commit.sh"
+
+  # Open bash with npm (to add new modules for examples, or update)
+  bash:
+    image: node:9.3.0
+    depends_on:
+      - init
+    volumes:
+      - .:/code
+    working_dir: /code
+    stdin_open: true
+    entrypoint: bash
+
+  # Run the web server on 8080 port
+  web:
+    image: node:9.3.0
+    depends_on:
+      - init
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - 8080:8080
+    command: bash -c "npm run start"
+
+  # Check the code synthax
+  lint:
+    image: node:9.3.0
+    depends_on:
+      - init
+    volumes:
+      - .:/code
+    working_dir: /code
+    command: bash -c "npm run lint"

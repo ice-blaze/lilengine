@@ -1,147 +1,93 @@
-class GameObject {
-	constructor(name = "GameObject") {
-		this.name = name
-		this.children = []
-		this.parent = null
-		this.vertices = []
-		this.textures = [] // the texture UV
-		this.normals = []
-		this.indices = []
+import { vec3, mat4 } from "gl-matrix"
+import { createProgram } from "./utils"
+import assets from "./assets"
+import Hierarchy from "./hierarchy"
+
+const OBJ = require("webgl-obj-loader")  // import are not availble
+
+export default class GameObject extends Hierarchy {
+	constructor(gl, name = "name", canvas, camera, model = undefined, tag = undefined) {
+		super(name)
 		this.texture = null // the image texture
-		this.position = vec3.fromValues(0.0, 0.0, 0.0)
-		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
-		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
-		this.GL = null
-	}
 
-	static create(GL, path, name = "name") {
-		const object = new GameObject()
-		const file = loadTextFile(path)
-		const obj_mesh = new OBJ.Mesh(file)
+		this.camera = camera
 
-		object.name = name
+		this.verticesBuffer = gl.createBuffer()
+		this.normalsBuffer = gl.createBuffer()
+		this.indicesBuffer = gl.createBuffer()
 
-		object.vertices = obj_mesh.vertices
-		object.textures = obj_mesh.textures
-		object.indices = obj_mesh.indices
-		object.normals = obj_mesh.vertexNormals
+		this.tag = tag
 
-		object.GL = GL
+		if (model) {
+			const objMesh = new OBJ.Mesh(model)
 
-		return object
-	}
-
-	init_buffers() {
-		const GL = this.GL
-		this.vertices_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.vertices), GL.STATIC_DRAW)
-		this.normals_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer)
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.normals), GL.STATIC_DRAW)
-		this.indices_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), GL.STATIC_DRAW)
-	}
-
-	model_matrix() {
-		let model = mat4.create()
-		if (this.parent) {
-			model = this.parent.model_matrix()
+			this.vertices = new Float32Array(objMesh.vertices)
+			this.textures = objMesh.textures
+			this.indices = new Uint16Array(objMesh.indices)
+			this.normals = new Float32Array(objMesh.vertexNormals)
 		}
-		mat4.translate(model, model, this.position)
-		mat4.rotateX(model, model, this.rotate[0])
-		mat4.rotateY(model, model, this.rotate[1])
-		mat4.rotateZ(model, model, this.rotate[2])
-		mat4.scale(model, model, this.scale)
 
-		return model
+		this.gl = gl
+
+		this.program = createProgram(gl, assets.shaders.mainShader)
+
+		// MVP Matrix
+		this.pMatrix = mat4.create()
+		mat4.perspective(this.pMatrix, this.camera.yFov, canvas.width / canvas.height, 0.1, 100.0)
+
+		// global lightning
+		this.globalLight = vec3.fromValues(1, -1, 1)
+		// maybe should be moved to the draw part
+		vec3.normalize(this.globalLight, this.globalLight)
+
+		this.screenSizeIn = gl.getUniformLocation(this.program, "screenSizeIn")
+		this.globalTime = gl.getUniformLocation(this.program, "globalTimeIn")
+		this.pMatrixIn = gl.getUniformLocation(this.program, "pMatrix")
+		this.globalLightIn = gl.getUniformLocation(this.program, "globalLightIn")
+
+		this.normalMatrix = mat4.create()
 	}
 
-	set_shader_program(program) {
-		this.program = program
-	}
-
-	remove_from_children(object) {
-		remove_array(this.children, object)
-	}
-
-	set_parent(new_parent) {
-		if (!new_parent instanceof GameObject) {
-			console.warn('Trying to set a parent that is not a GameObject')
+	draw(canvas, time) {
+		// if there is no model, don't draw
+		if (!this.indices) {
 			return
 		}
-		if (new_parent === this) {
-			console.warn("Parent can't be the object its self")
-			return
-		}
-		if (new_parent === this.parent) {
-			console.warn("Already a parent")
-			return
-		}
+		const gl = this.gl
+		gl.useProgram(this.program)
+		// Pass the screen size to the shaders as uniform and quad coordinates as attribute
 
-		if (new_parent.parent) {
-			new_parent.parent.remove_from_children(new_parent)
-		}
+		gl.uniform2f(this.screenSizeIn, canvas.width, canvas.height)
+		gl.uniform3fv(this.globalLightIn, this.globalLight)
+		gl.uniform1f(this.globalTime, time / 1000)
+		gl.uniformMatrix4fv(this.pMatrixIn, false, this.pMatrix)
 
-		if (this.parent) {
-			this.parent.remove_from_children(this)
-			this.parent.children.push(new_parent)
-		}
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer)
+		gl.bufferData(gl.ARRAY_BUFFER, this.normals, gl.STATIC_DRAW)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW)
 
-		new_parent.parent = this.parent
-		this.parent = new_parent
-		new_parent.children.push(this)
+		const mvMatrix = this.modelMatrix()
+		mat4.invert(this.normalMatrix, mvMatrix)
+		mat4.transpose(this.normalMatrix, this.normalMatrix)
+		this.normal_matrix_in = gl.getUniformLocation(this.program, "normalMatrix")
+		gl.uniformMatrix4fv(this.normal_matrix_in, false, this.normalMatrix)
+		this.mvMatrixIn = gl.getUniformLocation(this.program, "mvMatrix")
+		gl.uniformMatrix4fv(this.mvMatrixIn, false, mvMatrix)
+		this.normalIn = gl.getAttribLocation(this.program, "normal")
+		gl.enableVertexAttribArray(this.normalIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer)
+		gl.vertexAttribPointer(this.normalIn, 3, gl.FLOAT, false, 0, 0)
+		this.coordIn = gl.getAttribLocation(this.program, "coordinate")
+		gl.enableVertexAttribArray(this.coordIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+		gl.vertexAttribPointer(this.coordIn, 3, gl.FLOAT, false, 0, 0)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
 
-		view.update_hierarchy()
-	}
+		gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0)
 
-	set_child(child) {
-		if (!child instanceof GameObject) {
-			console.warn('Trying to add a child that is not a GameObject')
-			return
-		}
-		if (child === this) {
-			console.warn("Child can't be the object its self")
-			return
-		}
-		if (this.children.indexOf(child) > -1) {
-			console.warn("Child is already children")
-			return
-		}
-
-		if (child.parent) {
-			child.parent.remove_from_children(child)
-		}
-
-		this.children.push(child)
-		child.parent = this
-
-		view.update_hierarchy()
-	}
-
-	draw() {
-		const GL = this.GL
-
-		const mv_matrix = this.model_matrix()
-		let normal_matrix = mat4.create()
-		mat4.invert(normal_matrix, mv_matrix)
-		mat4.transpose(normal_matrix, normal_matrix)
-		this.normal_matrix_in = GL.getUniformLocation(this.program, "normal_matrix")
-		GL.uniformMatrix4fv(this.normal_matrix_in, false, normal_matrix)
-		this.mv_matrix_in = GL.getUniformLocation(this.program, "mv_matrix")
-		GL.uniformMatrix4fv(this.mv_matrix_in, false, mv_matrix)
-		this.normal_in = GL.getAttribLocation(this.program, "normal")
-		GL.enableVertexAttribArray(this.normal_in)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.normals_buffer);
-		GL.vertexAttribPointer(this.normal_in, 3, GL.FLOAT, false, 0, 0);
-		this.coord_in = GL.getAttribLocation(this.program, "coordinate")
-		GL.enableVertexAttribArray(this.coord_in)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
-		GL.vertexAttribPointer(this.coord_in, 3, GL.FLOAT, false, 0, 0)
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
-
-		GL.drawElements(GL.TRIANGLES, this.indices.length, GL.UNSIGNED_SHORT, 0)
-
+		gl.flush()
 	}
 }

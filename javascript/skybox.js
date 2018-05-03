@@ -1,97 +1,86 @@
-class SkyBox {
-	constructor(name = "GameObject") {
-		this.name = name
-		this.vertices = []
-		this.textures = [] // the texture UV
-		this.indices = []
-		this.position = vec3.fromValues(0.0, 0.0, 0.0)
-		this.rotate = vec3.fromValues(0.0, 0.0, 0.0)
-		this.scale = vec3.fromValues(1.0, 1.0, 1.0)
-		this.GL = null
-	}
+import { mat4 } from "gl-matrix"
+// import { OBJ } from "webgl-obj-loader"
+import assets from "./assets"
+import Hierarchy from "./hierarchy"
+import { createProgram } from "./utils"
 
-	static create(GL, name = "name") {
-		const skybox = new SkyBox()
-		const file = loadTextFile("./skyboxes/skybox.obj")
-		const skybox_mesh = new OBJ.Mesh(file)
+const OBJ = require("webgl-obj-loader")
 
-		skybox.name = name
+export default class SkyBox extends Hierarchy {
+	constructor(gl, name = "GameObject", canvas, camera) {
+		super(name)
 
-		skybox.vertices = skybox_mesh.vertices
-		skybox.textures = skybox_mesh.textures
-		skybox.indices = skybox_mesh.indices
+		const file = assets.models.skybox
+		const skyboxMesh = new OBJ.Mesh(file)
 
-		skybox.GL = GL
+		this.vertices = skyboxMesh.vertices
+		this.textures = skyboxMesh.textures
+		this.indices = skyboxMesh.indices
 
-		skybox.texture = GL.createTexture()
-		skybox.image = new Image()
-		skybox.image.onload = function () {
-			GL.bindTexture(GL.TEXTURE_2D, skybox.texture);
-			GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, skybox.image);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-			GL.bindTexture(GL.TEXTURE_2D, null);
+		this.gl = gl
+		this.camera = camera
+
+		this.texture = gl.createTexture()
+		this.image = new Image()
+		this.image.onload = () => {
+			gl.bindTexture(gl.TEXTURE_2D, this.texture)
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+			gl.bindTexture(gl.TEXTURE_2D, null)
 		}
-		skybox.image.src = './skyboxes/default.png'
+		this.image.src = "./skyboxes/default.png"
 
-		return skybox
-	}
-
-	init_buffers() {
-		const GL = this.GL
-		this.vertices_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.vertices), GL.STATIC_DRAW)
-		this.texture_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.texture_buffer)
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(this.textures), GL.STATIC_DRAW)
-		this.indices_buffer = GL.createBuffer()
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), GL.STATIC_DRAW)
-	}
-
-	model_matrix() {
-		let model = mat4.create()
-		if (this.parent) {
-			model = this.parent.model_matrix()
-		}
-		mat4.translate(model, model, this.position)
-		mat4.rotateX(model, model, this.rotate[0])
-		mat4.rotateY(model, model, this.rotate[1])
-		mat4.rotateZ(model, model, this.rotate[2])
-		mat4.scale(model, model, this.scale)
-
-		return model
-	}
-
-	set_shader_program(program) {
-		this.program = program
+		this.program = createProgram(gl, assets.shaders.skybox)
+		this.pMatrixInSkybox = gl.getUniformLocation(this.program, "pMatrix")
+		this.pSkyboxMatrix = mat4.create()
+		mat4.perspective(
+			this.pSkyboxMatrix,
+			this.camera.yFov,
+			canvas.width / canvas.height,
+			0.1,
+			1000000.0,
+		)
+		this.verticesBuffer = gl.createBuffer()
+		this.textureBuffer = gl.createBuffer()
+		this.indicesBuffer = gl.createBuffer()
 	}
 
 	draw() {
-		const GL = this.GL
+		const gl = this.gl
 
-		GL.activeTexture(GL.TEXTURE0);
-		GL.bindTexture(GL.TEXTURE_2D, this.texture);
-		GL.uniform1i(GL.getUniformLocation(this.program, 'sampler_in'), 0);
+		gl.useProgram(this.program)
 
-		this.mv_matrix_in = GL.getUniformLocation(this.program, "mv_matrix")
-		GL.uniformMatrix4fv(this.mv_matrix_in, false, this.model_matrix())
+		gl.uniformMatrix4fv(this.pMatrixInSkybox, false, this.pSkyboxMatrix)
 
-		this.coord_in = GL.getAttribLocation(this.program, "coordinate")
-		GL.enableVertexAttribArray(this.coord_in)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.vertices_buffer)
-		GL.vertexAttribPointer(this.coord_in, 3, GL.FLOAT, false, 0, 0)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer)
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textures), gl.STATIC_DRAW)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW)
 
-		this.texture_in = GL.getAttribLocation(this.program, "uv")
-		GL.enableVertexAttribArray(this.texture_in)
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.texture_buffer)
-		GL.vertexAttribPointer(this.texture_in, 2, GL.FLOAT, false, 0, 0)
+		gl.activeTexture(gl.TEXTURE0)
+		gl.bindTexture(gl.TEXTURE_2D, this.texture)
+		gl.uniform1i(gl.getUniformLocation(this.program, "samplerIn"), 0)
 
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.indices_buffer)
+		this.mvMatrix = gl.getUniformLocation(this.program, "mvMatrix")
+		gl.uniformMatrix4fv(this.mvMatrix, false, this.modelMatrix())
 
-		GL.drawElements(GL.TRIANGLES, this.indices.length, GL.UNSIGNED_SHORT, 0)
+		this.coordIn = gl.getAttribLocation(this.program, "coordinate")
+		gl.enableVertexAttribArray(this.coordIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer)
+		gl.vertexAttribPointer(this.coordIn, 3, gl.FLOAT, false, 0, 0)
+
+		this.textureIn = gl.getAttribLocation(this.program, "uv")
+		gl.enableVertexAttribArray(this.textureIn)
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer)
+		gl.vertexAttribPointer(this.textureIn, 2, gl.FLOAT, false, 0, 0)
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer)
+
+		gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0)
 	}
 }
