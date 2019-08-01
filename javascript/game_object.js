@@ -3,7 +3,7 @@ import { createProgram } from "./utils"
 import assets from "./assets"
 import Hierarchy from "./hierarchy"
 
-const OBJ = require("webgl-obj-loader")  // import are not availble
+const OBJ = require("webgl-obj-loader") // import are not availble
 
 export default class GameObject extends Hierarchy {
 	constructor(gl, name = "name", canvas, camera, model = undefined, tag = undefined) {

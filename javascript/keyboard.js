@@ -15,8 +15,8 @@ export default class Keyboard {
 			this.keypressed[keyName] = false
 		}, false)
 
-		const translationSpeed = 0.1  // TODO multiply with a delta
-		const rotationSpeed = -0.01  // TODO multiply with a delta
+		const translationSpeed = 0.1 // TODO multiply with a delta
+		const rotationSpeed = -0.01 // TODO multiply with a delta
 		const pi = 3.14
 		const halfPi = pi / 2.0
 

@@ -11,13 +11,13 @@ describe("Verify the UI", () => {
 		panel.isDisplayed().then((isVisible) => {
 			if (isVisible) {
 				button.click()
-				browser.sleep(1000)  // should wait until invisible more than just wait
+				browser.sleep(1000) // should wait until invisible more than just wait
 				panel.isDisplayed().then((isVisibleAfter) => {
 					expect(isVisibleAfter).toBeFalsy()
 				})
 			} else {
 				button.click()
-				browser.sleep(1000)  // should wait until invisible more than just wait
+				browser.sleep(1000) // should wait until invisible more than just wait
 				panel.isDisplayed().then((isVisibleAfter) => {
 					expect(isVisibleAfter).toBeTruthy()
 				})

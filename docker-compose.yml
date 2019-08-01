@@ -3,7 +3,7 @@ services:
 
   # Do it first to initalize the node_modules folders
   init:
-    image: node:9.3.0
+    image: node:10.16.0
     volumes:
       - .:/code
     working_dir: /code
@@ -11,7 +11,7 @@ services:
 
   # Open bash with npm (to add new modules for examples, or update)
   bash:
-    image: node:9.3.0
+    image: node:10.16.0
     depends_on:
       - init
     volumes:
@@ -22,7 +22,7 @@ services:
 
   # Run the web server on 8080 port
   web:
-    image: node:9.3.0
+    image: node:10.16.0
     depends_on:
       - init
     volumes:
@@ -34,7 +34,7 @@ services:
 
   # Check the code synthax
   lint:
-    image: node:9.3.0
+    image: node:10.16.0
     depends_on:
       - init
     volumes:

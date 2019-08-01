@@ -48,7 +48,7 @@ function main() {
 	}
 
 	const camera = new Camera(gl, "camera", canvas)
-	const keyboard = new Keyboard(camera)  // eslint-disable-line no-unused-vars
+	const keyboard = new Keyboard(camera) // eslint-disable-line no-unused-vars
 	GLB.gameObjectHierarchyRoot = new GameObject(gl, "root", canvas, camera)
 
 	const MAX_OBJ = 10

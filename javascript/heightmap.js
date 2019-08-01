@@ -75,9 +75,9 @@ export default class Heightmap extends Hierarchy {
 			const sub2 = vec3.fromValues()
 			const n1 = vec3.fromValues()
 			const n2 = vec3.fromValues()
-			let i = 0  // indices index
-			let v = 0  // vertices index
-			let packIdx = 0  // current "pack" of the height map
+			let i = 0 // indices index
+			let v = 0 // vertices index
+			let packIdx = 0 // current "pack" of the height map
 			// loop over line
 			for (let line = 0; line < lineCount - 1; line += 1) {
 				// loop over column
