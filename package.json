@@ -13,7 +13,7 @@
     "nestedSortable": "^1.3.4",
     "sortablejs": "^1.10.0-rc3",
     "webgl-obj-loader": "^0.1.1",
-    "webpack-cli": "^3.3.6",
+    "webpack-cli": "^3.3.12",
     "what-input": "^5.2.3"
   },
   "devDependencies": {
